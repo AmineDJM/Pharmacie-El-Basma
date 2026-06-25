@@ -1,0 +1,216 @@
+// Parapharmacie El Basma — Schéma de base de données
+// Source de vérité unique pour le site public ET l'espace d'administration.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Administration
+// ---------------------------------------------------------------------------
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         String   @default("admin")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Catalogue
+// ---------------------------------------------------------------------------
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  // Champ libre pour l'illustration (nom d'icône Lucide ou clé d'illustration interne).
+  icon        String?
+  // Couleur d'accent (classe de dégradé) pour les visuels générés.
+  accent      String     @default("emerald")
+  // Hiérarchie pour le méga-menu (catégorie / sous-catégorie).
+  parentId    String?
+  parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryTree")
+  order       Int        @default(0)
+  featured    Boolean    @default(false)
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  products    Product[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([parentId])
+  @@index([slug])
+}
+
+model Brand {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  // Initiales ou courte signature affichée dans le visuel généré.
+  accent      String    @default("teal")
+  featured    Boolean   @default(false)
+  order       Int       @default(0)
+  metaTitle       String?
+  metaDescription String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([slug])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  // Description courte (carte produit) et longue (fiche produit).
+  shortDescription String
+  description String
+  // Prix exprimés en Dinars Algériens (DZD).
+  price       Float
+  oldPrice    Float?
+  // Image optionnelle : URL fournie via l'admin. Si vide, un visuel premium est généré.
+  imageUrl    String?
+  inStock     Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  isNew       Boolean  @default(false)
+  isBestSeller Boolean @default(false)
+  rating      Float    @default(4.8)
+  reviewCount Int      @default(0)
+  // Caractéristiques affichées sous forme de liste (séparées par des sauts de ligne).
+  highlights  String?
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  brandId     String?
+  brand       Brand?   @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  metaTitle       String?
+  metaDescription String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([slug])
+  @@index([isFeatured])
+  @@index([isBestSeller])
+}
+
+// ---------------------------------------------------------------------------
+// Contenu éditorial
+// ---------------------------------------------------------------------------
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  excerpt     String
+  // Contenu au format Markdown léger (rendu côté serveur).
+  content     String
+  category    String   @default("Conseils santé")
+  author      String   @default("Équipe Parapharmacie El Basma")
+  readingTime Int      @default(4)
+  accent      String   @default("emerald")
+  published   Boolean  @default(true)
+  featured    Boolean  @default(false)
+  metaTitle       String?
+  metaDescription String?
+  publishedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+  @@index([published])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  author    String
+  rating    Int      @default(5)
+  content   String
+  // Source de l'avis : "Google", "Sur place", "Facebook"...
+  source    String   @default("Google")
+  location  String   @default("Boufarik")
+  approved  Boolean  @default(true)
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([approved])
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String   @default("Général")
+  order     Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Interactions clients
+// ---------------------------------------------------------------------------
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  read      Boolean  @default(false)
+  archived  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([read])
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Paramètres du site (enregistrement unique, clé "main")
+// ---------------------------------------------------------------------------
+
+model SiteSettings {
+  id        String  @id @default("main")
+  pharmacyName String @default("Parapharmacie El Basma")
+  tagline   String  @default("Votre parapharmacie de confiance à Boufarik")
+  description String @default("Parapharmacie à Boufarik (Blida) : dermocosmétique, compléments alimentaires, soins bébé, hygiène et conseils santé par des professionnels.")
+  phone     String  @default("+213 25 00 00 00")
+  whatsapp  String  @default("213660000000")
+  email     String  @default("contact@parapharmacie-elbasma.dz")
+  addressLine String @default("Rue Menad Mohamed")
+  city      String  @default("Boufarik")
+  wilaya    String  @default("Blida")
+  country   String  @default("Algérie")
+  postalCode String @default("09300")
+  latitude  Float   @default(36.5675)
+  longitude Float   @default(2.9089)
+  // Horaires stockés en JSON (tableau de { day, hours }).
+  openingHours String @default("[]")
+  facebookUrl  String @default("")
+  instagramUrl String @default("")
+  // Bandeau d'annonce affiché en haut du site (optionnel).
+  announcement String @default("Livraison à Boufarik & Blida — Conseils gratuits par nos pharmaciens")
+  announcementActive Boolean @default(true)
+  mapsUrl   String  @default("")
+  updatedAt DateTime @updatedAt
+}

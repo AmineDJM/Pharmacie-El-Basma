@@ -1,0 +1,44 @@
+# Pile complète locale (base PostgreSQL + application).
+# Démarrage : docker compose up --build
+# Le conteneur applique les migrations et le seed au lancement.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: elbasma-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: elbasma
+      POSTGRES_PASSWORD: elbasma
+      POSTGRES_DB: elbasma
+    ports:
+      - "5432:5432"
+    volumes:
+      - elbasma-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elbasma"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: elbasma-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://elbasma:elbasma@db:5432/elbasma?schema=public
+      SESSION_SECRET: change-moi-en-une-longue-chaine-aleatoire
+      ADMIN_EMAIL: admin@parapharmacie-elbasma.dz
+      ADMIN_PASSWORD: ElBasma2024!
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_PHONE: "+213 25 00 00 00"
+      NEXT_PUBLIC_WHATSAPP: "213660000000"
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+
+volumes:
+  elbasma-pgdata:

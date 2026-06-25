@@ -1,0 +1,42 @@
+# Render Blueprint — déploiement en un clic de la Parapharmacie El Basma.
+# Provisionne une base PostgreSQL managée + le service web Docker, et relie
+# automatiquement DATABASE_URL. Voir https://render.com/docs/blueprint-spec
+
+databases:
+  - name: elbasma-db
+    databaseName: elbasma
+    user: elbasma
+    plan: free
+    region: frankfurt
+
+services:
+  - type: web
+    name: parapharmacie-el-basma
+    runtime: docker
+    plan: free
+    region: frankfurt
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: elbasma-db
+          property: connectionString
+      # Secret de session (généré automatiquement par Render).
+      - key: SESSION_SECRET
+        generateValue: true
+      # Identifiants du compte administrateur (créés au premier démarrage).
+      - key: ADMIN_EMAIL
+        value: admin@parapharmacie-elbasma.dz
+      # À DÉFINIR dans le dashboard Render (non versionné).
+      - key: ADMIN_PASSWORD
+        sync: false
+      # URL publique — à remplacer par votre domaine définitif si besoin.
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://parapharmacie-el-basma.onrender.com
+      - key: NEXT_PUBLIC_PHONE
+        value: "+213 25 00 00 00"
+      - key: NEXT_PUBLIC_WHATSAPP
+        value: "213660000000"
+      - key: NODE_ENV
+        value: production

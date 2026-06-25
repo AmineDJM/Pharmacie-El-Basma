@@ -1,0 +1,195 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 150 33% 99%;
+    --foreground: 174 32% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 174 32% 12%;
+
+    --primary: 162 74% 31%;
+    --primary-foreground: 0 0% 100%;
+    --primary-50: 158 64% 96%;
+    --primary-100: 160 60% 91%;
+    --primary-200: 160 54% 82%;
+    --primary-600: 163 78% 27%;
+    --primary-700: 165 76% 22%;
+    --primary-900: 168 62% 13%;
+
+    --secondary: 156 40% 96%;
+    --secondary-foreground: 165 40% 18%;
+
+    --muted: 156 24% 95%;
+    --muted-foreground: 172 12% 42%;
+
+    --accent: 158 55% 94%;
+    --accent-foreground: 165 50% 20%;
+
+    --gold: 38 78% 52%;
+
+    --border: 160 22% 90%;
+    --input: 160 22% 88%;
+    --ring: 162 74% 31%;
+
+    --radius: 0.85rem;
+  }
+
+  .dark {
+    --background: 175 33% 6%;
+    --foreground: 156 30% 94%;
+
+    --card: 176 28% 9%;
+    --card-foreground: 156 30% 94%;
+
+    --primary: 158 66% 48%;
+    --primary-foreground: 175 40% 7%;
+    --primary-50: 168 40% 16%;
+    --primary-100: 168 38% 20%;
+    --primary-200: 166 40% 28%;
+    --primary-600: 158 64% 52%;
+    --primary-700: 158 60% 60%;
+    --primary-900: 156 40% 86%;
+
+    --secondary: 175 22% 14%;
+    --secondary-foreground: 156 30% 92%;
+
+    --muted: 176 20% 14%;
+    --muted-foreground: 158 14% 64%;
+
+    --accent: 174 24% 16%;
+    --accent-foreground: 156 30% 92%;
+
+    --gold: 40 70% 56%;
+
+    --border: 175 18% 18%;
+    --input: 175 18% 20%;
+    --ring: 158 66% 48%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-primary-900;
+  }
+
+  h1, h2, h3, h4, h5 {
+    @apply font-display tracking-tight;
+  }
+
+  /* Accessible focus rings */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-border;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply container mx-auto;
+  }
+
+  .section {
+    @apply py-16 sm:py-20 lg:py-28;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-br from-primary via-primary-600 to-primary-700 bg-clip-text text-transparent;
+  }
+
+  .glass {
+    @apply bg-card/70 backdrop-blur-xl backdrop-saturate-150;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lift;
+  }
+
+  /* Light Markdown rendering (articles / legal pages) */
+  .prose-elbasma {
+    @apply text-[1.0625rem] leading-relaxed text-foreground/90;
+  }
+  .prose-elbasma h2 {
+    @apply mt-10 mb-4 font-display text-2xl font-bold tracking-tight text-foreground;
+  }
+  .prose-elbasma h3 {
+    @apply mt-8 mb-3 font-display text-xl font-semibold text-foreground;
+  }
+  .prose-elbasma p {
+    @apply mb-5;
+  }
+  .prose-elbasma ul {
+    @apply mb-6 space-y-2.5 pl-1;
+  }
+  .prose-elbasma li {
+    @apply relative flex gap-3 pl-1;
+  }
+  .prose-elbasma strong {
+    @apply font-semibold text-foreground;
+  }
+  .prose-elbasma a {
+    @apply font-medium text-primary underline-offset-4 hover:underline;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .mask-fade-r {
+    -webkit-mask-image: linear-gradient(to right, black 80%, transparent 100%);
+    mask-image: linear-gradient(to right, black 80%, transparent 100%);
+  }
+}
