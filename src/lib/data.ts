@@ -109,7 +109,7 @@ export const getSettings = unstable_cache(
 // ---------------------------------------------------------------------------
 
 const productInclude = {
-  category: { select: { name: true, slug: true, accent: true } },
+  category: { select: { name: true, slug: true, accent: true, translations: true } },
   brand: { select: { name: true, slug: true } },
 } satisfies Prisma.ProductInclude;
 
@@ -176,7 +176,7 @@ export async function getCategoryBySlug(slug: string) {
       prisma.category.findUnique({
         where: { slug },
         include: {
-          parent: { select: { name: true, slug: true } },
+          parent: { select: { name: true, slug: true, translations: true } },
           children: { orderBy: { order: 'asc' } },
         },
       }),
@@ -295,19 +295,21 @@ export interface ProductFilters {
   brand?: string;
   search?: string;
   promo?: boolean;
+  bio?: boolean;
   sort?: 'recent' | 'price-asc' | 'price-desc' | 'ventes' | 'nouveautes';
   page?: number;
   perPage?: number;
 }
 
 export async function getProducts(filters: ProductFilters = {}) {
-  const { category, categorySlugs, brand, search, promo, sort = 'recent', page = 1, perPage = 12 } = filters;
+  const { category, categorySlugs, brand, search, promo, bio, sort = 'recent', page = 1, perPage = 12 } = filters;
 
   const where: Prisma.ProductWhereInput = {};
   if (categorySlugs?.length) where.category = { slug: { in: categorySlugs } };
   else if (category) where.category = { slug: category };
   if (brand) where.brand = { slug: brand };
   if (promo) where.oldPrice = { not: null };
+  if (bio) where.isBio = true;
   if (search) {
     where.OR = [
       { name: { contains: search, mode: 'insensitive' } },
@@ -351,7 +353,7 @@ export async function getProductBySlug(slug: string) {
       prisma.product.findUnique({
         where: { slug },
         include: {
-          category: { select: { name: true, slug: true, accent: true } },
+          category: { select: { name: true, slug: true, accent: true, translations: true } },
           brand: { select: { name: true, slug: true } },
         },
       }),

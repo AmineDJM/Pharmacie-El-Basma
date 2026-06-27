@@ -1,5 +1,7 @@
 // Parapharmacie El Basma — Schéma de base de données
 // Source de vérité unique pour le site public ET l'espace d'administration.
+// `translations` (Json) stocke les variantes { en: {...}, ar: {...} } ; le
+// français reste dans les colonnes de base.
 
 generator client {
   provider = "prisma-client-js"
@@ -24,6 +26,19 @@ model AdminUser {
   updatedAt    DateTime @updatedAt
 }
 
+// Images téléversées (redimensionnées/optimisées) — stockées en base pour
+// une persistance sans service externe ni disque payant.
+model MediaImage {
+  id          String   @id @default(cuid())
+  data        Bytes
+  contentType String   @default("image/webp")
+  width       Int      @default(0)
+  height      Int      @default(0)
+  size        Int      @default(0)
+  alt         String?
+  createdAt   DateTime @default(now())
+}
+
 // ---------------------------------------------------------------------------
 // Catalogue
 // ---------------------------------------------------------------------------
@@ -33,19 +48,17 @@ model Category {
   name        String
   slug        String     @unique
   description String?
-  // Champ libre pour l'illustration (nom d'icône Lucide ou clé d'illustration interne).
   icon        String?
-  // Couleur d'accent (classe de dégradé) pour les visuels générés.
   accent      String     @default("emerald")
-  // Hiérarchie pour le méga-menu (catégorie / sous-catégorie).
+  imageUrl    String?
   parentId    String?
   parent      Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
   children    Category[] @relation("CategoryTree")
   order       Int        @default(0)
   featured    Boolean    @default(false)
-  // SEO
   metaTitle       String?
   metaDescription String?
+  translations Json?
   products    Product[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -59,12 +72,13 @@ model Brand {
   name        String
   slug        String    @unique
   description String?
-  // Initiales ou courte signature affichée dans le visuel généré.
   accent      String    @default("teal")
+  imageUrl    String?
   featured    Boolean   @default(false)
   order       Int       @default(0)
   metaTitle       String?
   metaDescription String?
+  translations Json?
   products    Product[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -76,21 +90,18 @@ model Product {
   id          String   @id @default(cuid())
   name        String
   slug        String   @unique
-  // Description courte (carte produit) et longue (fiche produit).
   shortDescription String
   description String
-  // Prix exprimés en Dinars Algériens (DZD).
   price       Float
   oldPrice    Float?
-  // Image optionnelle : URL fournie via l'admin. Si vide, un visuel premium est généré.
   imageUrl    String?
   inStock     Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   isNew       Boolean  @default(false)
   isBestSeller Boolean @default(false)
+  isBio       Boolean  @default(false)
   rating      Float    @default(4.8)
   reviewCount Int      @default(0)
-  // Caractéristiques affichées sous forme de liste (séparées par des sauts de ligne).
   highlights  String?
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -98,6 +109,7 @@ model Product {
   brand       Brand?   @relation(fields: [brandId], references: [id], onDelete: SetNull)
   metaTitle       String?
   metaDescription String?
+  translations Json?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -106,6 +118,7 @@ model Product {
   @@index([slug])
   @@index([isFeatured])
   @@index([isBestSeller])
+  @@index([isBio])
 }
 
 // ---------------------------------------------------------------------------
@@ -117,16 +130,17 @@ model Article {
   title       String
   slug        String   @unique
   excerpt     String
-  // Contenu au format Markdown léger (rendu côté serveur).
   content     String
   category    String   @default("Conseils santé")
   author      String   @default("Équipe Parapharmacie El Basma")
   readingTime Int      @default(4)
   accent      String   @default("emerald")
+  imageUrl    String?
   published   Boolean  @default(true)
   featured    Boolean  @default(false)
   metaTitle       String?
   metaDescription String?
+  translations Json?
   publishedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -139,11 +153,11 @@ model Review {
   author    String
   rating    Int      @default(5)
   content   String
-  // Source de l'avis : "Google", "Sur place", "Facebook"...
   source    String   @default("Google")
   location  String   @default("Boufarik")
   approved  Boolean  @default(true)
   featured  Boolean  @default(false)
+  translations Json?
   createdAt DateTime @default(now())
 
   @@index([approved])
@@ -156,6 +170,7 @@ model Faq {
   category  String   @default("Général")
   order     Int      @default(0)
   published Boolean  @default(true)
+  translations Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -204,13 +219,12 @@ model SiteSettings {
   postalCode String @default("09300")
   latitude  Float   @default(36.5675)
   longitude Float   @default(2.9089)
-  // Horaires stockés en JSON (tableau de { day, hours }).
   openingHours String @default("[]")
   facebookUrl  String @default("")
   instagramUrl String @default("")
-  // Bandeau d'annonce affiché en haut du site (optionnel).
   announcement String @default("Livraison à Boufarik & Blida — Conseils gratuits par nos pharmaciens")
   announcementActive Boolean @default(true)
   mapsUrl   String  @default("")
+  translations Json?
   updatedAt DateTime @updatedAt
 }

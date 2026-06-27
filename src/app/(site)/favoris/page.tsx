@@ -1,6 +1,7 @@
 import { PageHeader } from '@/components/layout/page-header';
 import { FavoritesView } from '@/components/favorites/favorites-view';
 import { RecentlyViewed } from '@/components/product/recently-viewed';
+import { getI18n } from '@/i18n/locale';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -10,14 +11,15 @@ export const metadata = buildMetadata({
   noindex: true,
 });
 
-export default function FavorisPage() {
+export default async function FavorisPage() {
+  const { t } = await getI18n();
   return (
     <>
       <PageHeader
         breadcrumbs={[{ label: 'Mes favoris', href: '/favoris' }]}
-        eyebrow="Ma sélection"
-        title="Mes produits favoris"
-        description="Vos coups de cœur, sauvegardés sur cet appareil pour les retrouver à tout moment."
+        eyebrow={t('pages.favoritesEyebrow')}
+        title={t('pages.favoritesTitle')}
+        description={t('pages.favoritesText')}
       />
       <section className="section">
         <div className="container">

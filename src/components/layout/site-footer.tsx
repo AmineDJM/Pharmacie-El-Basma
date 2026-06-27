@@ -3,11 +3,13 @@ import { MapPin, Phone, Mail, MessageCircle, Clock, Facebook, Instagram, ShieldC
 import { Logo } from '@/components/ui/logo';
 import { NewsletterForm } from '@/components/forms/newsletter-form';
 import { getSettings } from '@/lib/data';
+import { getI18n } from '@/i18n/locale';
 import { FOOTER_NAV } from '@/lib/constants';
 import { whatsappLink, telLink } from '@/lib/utils';
 
 export async function SiteFooter() {
   const settings = await getSettings();
+  const { t } = await getI18n();
   const year = 2026;
   const fullAddress = `${settings.addressLine}, ${settings.city}, ${settings.wilaya}`;
   const mapsUrl =
@@ -22,10 +24,8 @@ export async function SiteFooter() {
           <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" aria-hidden />
           <div className="relative grid items-center gap-6 md:grid-cols-2">
             <div>
-              <h2 className="font-display text-2xl font-bold sm:text-3xl">Restez informé(e)</h2>
-              <p className="mt-2 max-w-md text-sm text-primary-foreground/85">
-                Conseils santé, nouveautés et promotions exclusives de la Parapharmacie El Basma, directement dans votre boîte mail.
-              </p>
+              <h2 className="font-display text-2xl font-bold sm:text-3xl">{t('footer.newsletterTitle')}</h2>
+              <p className="mt-2 max-w-md text-sm text-primary-foreground/85">{t('footer.newsletterText')}</p>
             </div>
             <NewsletterForm className="md:justify-self-end md:w-full md:max-w-md" />
           </div>
@@ -35,9 +35,9 @@ export async function SiteFooter() {
       {/* Trust strip */}
       <div className="container grid grid-cols-1 gap-4 border-y border-border py-6 sm:grid-cols-3">
         {[
-          { icon: ShieldCheck, title: 'Produits authentiques', text: 'Marques de référence garanties' },
-          { icon: Leaf, title: 'Conseils de pharmaciens', text: 'Un accompagnement personnalisé' },
-          { icon: Truck, title: 'Disponibilité & livraison', text: 'Boufarik, Blida et alentours' },
+          { icon: ShieldCheck, title: t('footer.trust1Title'), text: t('footer.trust1Text') },
+          { icon: Leaf, title: t('footer.trust2Title'), text: t('footer.trust2Text') },
+          { icon: Truck, title: t('footer.trust3Title'), text: t('footer.trust3Text') },
         ].map((item) => (
           <div key={item.title} className="flex items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary dark:bg-primary-100">
@@ -115,7 +115,7 @@ export async function SiteFooter() {
       <div className="container border-t border-border py-6">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">
-            <Clock className="h-4 w-4 text-primary" /> Horaires d’ouverture :
+            <Clock className="h-4 w-4 text-primary" /> {t('footer.hours')}
           </span>
           {settings.openingHours.map((oh) => (
             <span key={oh.day}>
@@ -128,7 +128,7 @@ export async function SiteFooter() {
       {/* Bottom */}
       <div className="border-t border-border">
         <div className="container flex flex-col items-center justify-between gap-3 py-5 text-xs text-muted-foreground sm:flex-row">
-          <p>© {year} {settings.pharmacyName}. Tous droits réservés.</p>
+          <p>© {year} {settings.pharmacyName}. {t('footer.rights')}</p>
           <div className="flex items-center gap-4">
             <Link href="/mentions-legales" className="hover:text-primary">Mentions légales</Link>
             <Link href="/politique-de-confidentialite" className="hover:text-primary">Confidentialité</Link>

@@ -4,11 +4,13 @@ import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Send, CheckCircle2, Loader2 } from 'lucide-react';
 import { subscribeNewsletter, type FormState } from '@/lib/actions/public';
+import { useT } from '@/i18n/provider';
 import { cn } from '@/lib/utils';
 
 const initial: FormState = { ok: false, message: '' };
 
 function SubmitButton() {
+  const t = useT();
   const { pending } = useFormStatus();
   return (
     <button
@@ -17,12 +19,13 @@ function SubmitButton() {
       className="inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary-600 disabled:opacity-60"
     >
       {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-      <span className="hidden sm:inline">S’inscrire</span>
+      <span className="hidden sm:inline">{t('footer.subscribe')}</span>
     </button>
   );
 }
 
 export function NewsletterForm({ className }: { className?: string }) {
+  const t = useT();
   const [state, formAction] = useActionState(subscribeNewsletter, initial);
 
   if (state.ok) {
@@ -45,7 +48,7 @@ export function NewsletterForm({ className }: { className?: string }) {
           type="email"
           name="email"
           required
-          placeholder="Votre adresse e-mail"
+          placeholder={t('footer.emailPlaceholder')}
           className="h-12 w-full rounded-xl border border-border bg-card px-4 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
         />
         <SubmitButton />

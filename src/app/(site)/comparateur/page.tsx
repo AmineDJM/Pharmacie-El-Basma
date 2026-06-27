@@ -1,5 +1,6 @@
 import { PageHeader } from '@/components/layout/page-header';
 import { CompareView } from '@/components/compare/compare-view';
+import { getI18n } from '@/i18n/locale';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -9,14 +10,15 @@ export const metadata = buildMetadata({
   noindex: true,
 });
 
-export default function ComparateurPage() {
+export default async function ComparateurPage() {
+  const { t } = await getI18n();
   return (
     <>
       <PageHeader
         breadcrumbs={[{ label: 'Comparateur', href: '/comparateur' }]}
-        eyebrow="Outil d’aide au choix"
-        title="Comparateur de produits"
-        description="Analysez vos produits côte à côte pour choisir celui qui vous convient le mieux."
+        eyebrow={t('pages.compareEyebrow')}
+        title={t('pages.compareTitle')}
+        description={t('pages.compareText')}
       />
       <section className="section">
         <div className="container">

@@ -5,6 +5,7 @@ import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
 import { Send, CheckCircle2, Loader2 } from 'lucide-react';
 import { submitContactMessage, type FormState } from '@/lib/actions/public';
+import { useT } from '@/i18n/provider';
 import { cn } from '@/lib/utils';
 
 const initial: FormState = { ok: false, message: '' };
@@ -19,6 +20,7 @@ const SUBJECTS = [
 ];
 
 function SubmitButton() {
+  const t = useT();
   const { pending } = useFormStatus();
   return (
     <button
@@ -27,7 +29,7 @@ function SubmitButton() {
       className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:bg-primary-600 hover:shadow-glow disabled:opacity-60"
     >
       {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-      Envoyer le message
+      {t('contact.send')}
     </button>
   );
 }
@@ -54,6 +56,7 @@ const inputClass =
   'h-12 w-full rounded-xl border border-border bg-card px-4 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20';
 
 export function ContactForm() {
+  const t = useT();
   const [state, formAction] = useActionState(submitContactMessage, initial);
   const params = useSearchParams();
   const [subject, setSubject] = useState(SUBJECTS[0]);
@@ -81,18 +84,18 @@ export function ContactForm() {
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Nom complet *" error={state.errors?.name}>
+        <Field label={`${t('contact.name')} *`} error={state.errors?.name}>
           <input name="name" required className={inputClass} placeholder="Votre nom" autoComplete="name" />
         </Field>
-        <Field label="E-mail *" error={state.errors?.email}>
+        <Field label={`${t('contact.email')} *`} error={state.errors?.email}>
           <input name="email" type="email" required className={inputClass} placeholder="vous@exemple.com" autoComplete="email" />
         </Field>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Téléphone" error={state.errors?.phone}>
+        <Field label={t('contact.phone')} error={state.errors?.phone}>
           <input name="phone" className={inputClass} placeholder="0X XX XX XX XX" autoComplete="tel" inputMode="tel" />
         </Field>
-        <Field label="Objet *" error={state.errors?.subject}>
+        <Field label={`${t('contact.subject')} *`} error={state.errors?.subject}>
           <select name="subject" value={subject} onChange={(e) => setSubject(e.target.value)} className={inputClass}>
             {SUBJECTS.map((s) => (
               <option key={s} value={s}>
@@ -102,7 +105,7 @@ export function ContactForm() {
           </select>
         </Field>
       </div>
-      <Field label="Message *" error={state.errors?.message}>
+      <Field label={`${t('contact.message')} *`} error={state.errors?.message}>
         <textarea
           name="message"
           required
@@ -120,7 +123,7 @@ export function ContactForm() {
       )}
       <div className="flex items-center gap-3 pt-1">
         <SubmitButton />
-        <p className="text-xs text-muted-foreground">Réponse sous 24h ouvrées · Données confidentielles</p>
+        <p className="text-xs text-muted-foreground">{t('contact.privacyNote')}</p>
       </div>
     </form>
   );

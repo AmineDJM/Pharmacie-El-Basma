@@ -1,6 +1,7 @@
 import { PageHeader } from '@/components/layout/page-header';
 import { BrandCard } from '@/components/cards/brand-card';
 import { getBrands } from '@/lib/data';
+import { getI18n } from '@/i18n/locale';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -11,15 +12,16 @@ export const metadata = buildMetadata({
 });
 
 export default async function BrandsPage() {
+  const { t } = await getI18n();
   const brands = await getBrands();
 
   return (
     <>
       <PageHeader
         breadcrumbs={[{ label: 'Marques', href: '/marques' }]}
-        eyebrow="Marques"
-        title="Les marques que nous distribuons"
-        description="Une sélection de marques de référence, reconnues par les dermatologues et les professionnels de santé."
+        eyebrow={t('pages.brandsEyebrow')}
+        title={t('pages.brandsTitle')}
+        description={t('pages.brandsText')}
       />
       <section className="section">
         <div className="container">

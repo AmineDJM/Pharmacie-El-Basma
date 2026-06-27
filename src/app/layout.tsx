@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Manrope } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
+import { LocaleProvider } from '@/i18n/provider';
+import { getI18n } from '@/i18n/locale';
+import { isRtl } from '@/i18n/config';
 import { JsonLd } from '@/components/seo/json-ld';
 import { SwRegister } from '@/components/pwa/sw-register';
 import { getSettings } from '@/lib/data';
@@ -64,18 +67,27 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const settings = await getSettings();
+  const [{ locale, dict }, settings] = await Promise.all([getI18n(), getSettings()]);
 
   return (
-    <html lang="fr" suppressHydrationWarning className={`${inter.variable} ${manrope.variable}`}>
+    <html
+      lang={locale}
+      dir={isRtl(locale) ? 'rtl' : 'ltr'}
+      suppressHydrationWarning
+      className={`${inter.variable} ${manrope.variable}`}
+    >
       <body className="font-sans">
         <a
           href="#contenu"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
+          className="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[200] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
         >
           Aller au contenu
         </a>
-        <Providers>{children}</Providers>
+        <Providers>
+          <LocaleProvider locale={locale} dict={dict}>
+            {children}
+          </LocaleProvider>
+        </Providers>
         <JsonLd data={[websiteSchema(), localBusinessSchema(settings)]} />
         <SwRegister />
       </body>

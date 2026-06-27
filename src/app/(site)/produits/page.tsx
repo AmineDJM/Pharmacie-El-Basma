@@ -14,6 +14,7 @@ import {
   type ProductFilters as Filters,
 } from '@/lib/data';
 import { toCardData } from '@/lib/types';
+import { getI18n } from '@/i18n/locale';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -26,6 +27,7 @@ export const metadata = buildMetadata({
 type SP = Promise<Record<string, string | undefined>>;
 
 export default async function ProduitsPage({ searchParams }: { searchParams: SP }) {
+  const { t } = await getI18n();
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page) || 1);
 
@@ -61,9 +63,9 @@ export default async function ProduitsPage({ searchParams }: { searchParams: SP 
     <>
       <PageHeader
         breadcrumbs={[{ label: 'Produits', href: '/produits' }]}
-        eyebrow="Catalogue"
-        title="Tous nos produits"
-        description="Une sélection rigoureuse de produits parapharmaceutiques, validée par nos pharmaciens à Boufarik."
+        eyebrow={t('pages.productsEyebrow')}
+        title={t('pages.productsTitle')}
+        description={t('pages.productsText')}
       />
 
       <section className="section">

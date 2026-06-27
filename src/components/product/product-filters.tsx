@@ -3,14 +3,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { useT } from '@/i18n/provider';
 import { cn } from '@/lib/utils';
 
 const SORTS = [
-  { value: 'recent', label: 'Pertinence' },
-  { value: 'nouveautes', label: 'Nouveautés' },
-  { value: 'ventes', label: 'Meilleures ventes' },
-  { value: 'price-asc', label: 'Prix croissant' },
-  { value: 'price-desc', label: 'Prix décroissant' },
+  { value: 'recent', labelKey: 'filters.sortRelevance' },
+  { value: 'nouveautes', labelKey: 'filters.sortNew' },
+  { value: 'ventes', labelKey: 'filters.sortBest' },
+  { value: 'price-asc', labelKey: 'filters.sortPriceAsc' },
+  { value: 'price-desc', labelKey: 'filters.sortPriceDesc' },
 ];
 
 const selectClass =
@@ -27,6 +28,7 @@ export function ProductFilters({
   basePath?: string;
   showCategory?: boolean;
 }) {
+  const t = useT();
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -70,7 +72,7 @@ export function ProductFilters({
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher dans le catalogue…"
+            placeholder={t('filters.searchCatalog')}
             className="h-11 w-full rounded-xl border border-border bg-card pl-10 pr-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
             aria-label="Rechercher"
           />
@@ -81,7 +83,7 @@ export function ProductFilters({
           className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-medium md:hidden"
           aria-expanded={open}
         >
-          <SlidersHorizontal className="h-4 w-4" /> Filtres
+          <SlidersHorizontal className="h-4 w-4" /> {t('filters.filters')}
         </button>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -98,11 +100,11 @@ export function ProductFilters({
         </div>
 
         <label className="ml-auto hidden items-center gap-2 text-sm md:flex">
-          <span className="text-muted-foreground">Trier&nbsp;:</span>
+          <span className="text-muted-foreground">{t('filters.sortBy')}&nbsp;:</span>
           <select value={sort} onChange={(e) => apply({ tri: e.target.value })} className={selectClass} aria-label="Trier">
             {SORTS.map((s) => (
               <option key={s.value} value={s.value}>
-                {s.label}
+                {t(s.labelKey)}
               </option>
             ))}
           </select>
@@ -134,7 +136,7 @@ export function ProductFilters({
           }}
           className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-primary"
         >
-          <X className="h-3.5 w-3.5" /> Réinitialiser les filtres
+          <X className="h-3.5 w-3.5" /> {t('filters.resetFilters')}
         </button>
       )}
     </div>
@@ -162,11 +164,12 @@ function FilterSelects({
   apply: (u: Record<string, string | null>) => void;
   mobile?: boolean;
 }) {
+  const t = useT();
   return (
     <>
       {showCategory && (
         <select value={category} onChange={(e) => apply({ categorie: e.target.value || null })} className={selectClass} aria-label="Catégorie">
-          <option value="">Toutes catégories</option>
+          <option value="">{t('filters.allCategories')}</option>
           {categories.map((c) => (
             <option key={c.slug} value={c.slug}>
               {c.name}
@@ -175,7 +178,7 @@ function FilterSelects({
         </select>
       )}
       <select value={brand} onChange={(e) => apply({ marque: e.target.value || null })} className={selectClass} aria-label="Marque">
-        <option value="">Toutes les marques</option>
+        <option value="">{t('filters.allBrands')}</option>
         {brands.map((b) => (
           <option key={b.slug} value={b.slug}>
             {b.name}
@@ -184,13 +187,13 @@ function FilterSelects({
       </select>
       <label className={cn('inline-flex h-11 cursor-pointer items-center gap-2 rounded-xl border px-3 text-sm font-medium transition-colors', promo ? 'border-primary bg-primary-50 text-primary dark:bg-primary-100' : 'border-border bg-card')}>
         <input type="checkbox" checked={promo} onChange={(e) => apply({ promo: e.target.checked ? '1' : null })} className="accent-primary" />
-        En promotion
+        {t('filters.onPromo')}
       </label>
       {mobile && (
         <select value={sort} onChange={(e) => apply({ tri: e.target.value })} className={selectClass} aria-label="Trier">
           {SORTS.map((s) => (
             <option key={s.value} value={s.value}>
-              {s.label}
+              {t(s.labelKey)}
             </option>
           ))}
         </select>

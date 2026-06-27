@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { saveFaq } from '@/lib/actions/admin';
 import { Field, Input, Textarea, Toggle, AdminCard, FormError } from '@/components/admin/ui';
 import { SubmitButton, CancelLink } from '@/components/admin/form-actions';
+import { TranslationFields } from '@/components/admin/translation-fields';
 import type { FormState } from '@/lib/actions/public';
 
 const initial: FormState = { ok: false, message: '' };
@@ -15,6 +16,7 @@ interface FaqInput {
   category: string;
   order: number;
   published: boolean;
+  translations?: unknown;
 }
 
 export function FaqForm({ faq }: { faq?: FaqInput }) {
@@ -45,6 +47,16 @@ export function FaqForm({ faq }: { faq?: FaqInput }) {
         <div className="grid gap-3 sm:grid-cols-2">
           <Toggle name="published" label="Publié" defaultChecked={faq ? faq.published : true} />
         </div>
+      </AdminCard>
+
+      <AdminCard title="Traductions (optionnel)" description="Versions anglaise et arabe. Laissez vide pour afficher le français.">
+        <TranslationFields
+          value={faq?.translations}
+          fields={[
+            { name: 'question', label: 'Question' },
+            { name: 'answer', label: 'Réponse', textarea: true },
+          ]}
+        />
       </AdminCard>
 
       <FormError message={state.message} />

@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { saveCategory } from '@/lib/actions/admin';
 import { Field, Input, Textarea, Select, Toggle, AdminCard, FormError, inputClass } from '@/components/admin/ui';
 import { SubmitButton, CancelLink } from '@/components/admin/form-actions';
+import { TranslationFields } from '@/components/admin/translation-fields';
 import { ACCENT_KEYS } from '@/lib/visuals';
 import type { FormState } from '@/lib/actions/public';
 
@@ -21,6 +22,7 @@ interface CategoryInput {
   featured: boolean;
   metaTitle: string | null;
   metaDescription: string | null;
+  translations?: unknown;
 }
 
 export function CategoryForm({
@@ -97,6 +99,16 @@ export function CategoryForm({
             <Textarea name="metaDescription" rows={2} defaultValue={category?.metaDescription ?? ''} />
           </Field>
         </div>
+      </AdminCard>
+
+      <AdminCard title="Traductions (optionnel)" description="Versions anglaise et arabe. Laissez vide pour afficher le français.">
+        <TranslationFields
+          value={category?.translations}
+          fields={[
+            { name: 'name', label: 'Nom' },
+            { name: 'description', label: 'Description', textarea: true },
+          ]}
+        />
       </AdminCard>
 
       <FormError message={state.message} />

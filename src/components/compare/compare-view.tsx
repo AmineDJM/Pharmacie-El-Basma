@@ -7,9 +7,11 @@ import { StarRating } from '@/components/ui/star-rating';
 import { EmptyState } from '@/components/ui/empty-state';
 import { buttonVariants } from '@/components/ui/button';
 import { useStore } from '@/components/providers/store-provider';
+import { useT } from '@/i18n/provider';
 import { formatPrice, discountPercent } from '@/lib/utils';
 
 export function CompareView() {
+  const t = useT();
   const { compare, ready, removeCompare, clearCompare } = useStore();
 
   if (!ready) return <div className="h-64 animate-pulse rounded-3xl bg-muted" />;
@@ -18,11 +20,11 @@ export function CompareView() {
     return (
       <EmptyState
         icon={Scale}
-        title="Aucun produit à comparer"
-        description="Ajoutez jusqu’à 4 produits au comparateur pour les analyser côte à côte (prix, marque, catégorie, note)."
+        title={t('compare.empty')}
+        description={t('compare.emptyText')}
       >
         <Link href="/produits" className={buttonVariants()}>
-          Parcourir le catalogue
+          {t('compare.browse')}
         </Link>
       </EmptyState>
     );
@@ -32,24 +34,24 @@ export function CompareView() {
 
   const rows: { label: string; render: (p: (typeof compare)[number]) => React.ReactNode }[] = [
     {
-      label: 'Prix',
+      label: t('compare.price'),
       render: (p) => (
         <div className="flex flex-col items-center">
           {p.oldPrice && <span className="text-xs text-muted-foreground line-through">{formatPrice(p.oldPrice)}</span>}
           <span className="font-bold text-foreground">{formatPrice(p.price)}</span>
           {p.price === lowest && compare.length > 1 && (
             <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-0.5 text-[0.65rem] font-semibold text-primary dark:bg-primary-100">
-              <Check className="h-3 w-3" /> Le moins cher
+              <Check className="h-3 w-3" /> {t('compare.cheapest')}
             </span>
           )}
         </div>
       ),
     },
-    { label: 'Marque', render: (p) => p.brandName || <Minus className="mx-auto h-4 w-4 text-muted-foreground" /> },
-    { label: 'Catégorie', render: (p) => p.categoryName || <Minus className="mx-auto h-4 w-4 text-muted-foreground" /> },
-    { label: 'Note', render: (p) => <div className="flex justify-center"><StarRating rating={p.rating} /></div> },
+    { label: t('compare.brand'), render: (p) => p.brandName || <Minus className="mx-auto h-4 w-4 text-muted-foreground" /> },
+    { label: t('compare.category'), render: (p) => p.categoryName || <Minus className="mx-auto h-4 w-4 text-muted-foreground" /> },
+    { label: t('compare.rating'), render: (p) => <div className="flex justify-center"><StarRating rating={p.rating} /></div> },
     {
-      label: 'Promotion',
+      label: t('compare.promotion'),
       render: (p) => {
         const d = discountPercent(p.price, p.oldPrice);
         return d ? <span className="font-semibold text-rose-500">−{d}%</span> : <Minus className="mx-auto h-4 w-4 text-muted-foreground" />;
@@ -64,7 +66,7 @@ export function CompareView() {
           <span className="font-semibold text-foreground">{compare.length}</span> / 4 produits comparés
         </p>
         <button onClick={clearCompare} className="text-sm font-medium text-primary hover:underline">
-          Tout effacer
+          {t('compare.clear')}
         </button>
       </div>
 
@@ -110,7 +112,7 @@ export function CompareView() {
               {compare.map((p) => (
                 <td key={p.id} className="border-l border-border p-4 text-center">
                   <Link href={`/produits/${p.slug}`} className={buttonVariants({ size: 'sm' })}>
-                    Voir
+                    {t('compare.view')}
                   </Link>
                 </td>
               ))}

@@ -1,5 +1,9 @@
+'use client';
+
 import Link from 'next/link';
 import { Clock, ArrowRight } from 'lucide-react';
+import { useLocale, useT } from '@/i18n/provider';
+import { tField } from '@/lib/localize';
 import { getAccent } from '@/lib/visuals';
 import { cn, formatDate } from '@/lib/utils';
 
@@ -15,10 +19,16 @@ export function ArticleCard({
     accent: string;
     readingTime: number;
     publishedAt: Date | string;
+    translations?: unknown;
   };
   className?: string;
 }) {
+  const locale = useLocale();
+  const t = useT();
   const a = getAccent(article.accent);
+  const title = tField({ translations: article.translations }, locale, 'title', article.title);
+  const excerpt = tField({ translations: article.translations }, locale, 'excerpt', article.excerpt);
+
   return (
     <article
       className={cn(
@@ -29,7 +39,7 @@ export function ArticleCard({
       <Link href={`/conseils-sante/${article.slug}`} className="block">
         <div className={cn('relative h-40 overflow-hidden', a.gradient)}>
           <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_20%_-10%,rgba(255,255,255,0.5),transparent_55%)]" />
-          <div className="absolute left-4 top-4">
+          <div className="absolute start-4 top-4">
             <span className="rounded-full bg-white/85 px-3 py-1 text-xs font-semibold text-foreground backdrop-blur">
               {article.category}
             </span>
@@ -39,10 +49,10 @@ export function ArticleCard({
       <div className="flex flex-1 flex-col gap-3 p-5">
         <h3 className="line-clamp-2 font-display text-lg font-semibold leading-snug text-foreground">
           <Link href={`/conseils-sante/${article.slug}`} className="transition-colors hover:text-primary">
-            {article.title}
+            {title}
           </Link>
         </h3>
-        <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">{article.excerpt}</p>
+        <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">{excerpt}</p>
         <div className="flex items-center justify-between pt-1 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <Clock className="h-3.5 w-3.5" /> {article.readingTime} min · {formatDate(article.publishedAt)}
@@ -50,9 +60,9 @@ export function ArticleCard({
           <Link
             href={`/conseils-sante/${article.slug}`}
             className="inline-flex items-center gap-1 font-semibold text-primary"
-            aria-label={`Lire : ${article.title}`}
+            aria-label={title}
           >
-            Lire <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            {t('common.readMore')} <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>

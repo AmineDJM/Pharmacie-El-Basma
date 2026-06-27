@@ -4,6 +4,8 @@ import { useActionState } from 'react';
 import { saveProduct } from '@/lib/actions/admin';
 import { Field, Input, Textarea, Select, Toggle, AdminCard, FormError, inputClass } from '@/components/admin/ui';
 import { SubmitButton, CancelLink } from '@/components/admin/form-actions';
+import { ImageUpload } from '@/components/admin/image-upload';
+import { TranslationFields } from '@/components/admin/translation-fields';
 import { ACCENT_KEYS } from '@/lib/visuals';
 import type { FormState } from '@/lib/actions/public';
 
@@ -22,6 +24,7 @@ interface ProductInput {
   isFeatured: boolean;
   isNew: boolean;
   isBestSeller: boolean;
+  isBio: boolean;
   rating: number;
   reviewCount: number;
   highlights: string | null;
@@ -29,6 +32,7 @@ interface ProductInput {
   brandId: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
+  translations?: unknown;
 }
 
 export function ProductForm({
@@ -91,9 +95,9 @@ export function ProductForm({
           <Field label="Nombre d’avis">
             <Input name="reviewCount" type="number" min="0" defaultValue={product?.reviewCount ?? 0} />
           </Field>
-          <Field label="Image (URL)" hint="Optionnel : sinon un visuel élégant est généré." className="sm:col-span-2">
-            <Input name="imageUrl" type="url" defaultValue={product?.imageUrl ?? ''} placeholder="https://…" />
-          </Field>
+          <div className="sm:col-span-3">
+            <ImageUpload name="imageUrl" defaultValue={product?.imageUrl} label="Image du produit" hint="Optionnel : sinon un visuel élégant est généré automatiquement. Redimensionnement & optimisation automatiques." />
+          </div>
         </div>
       </AdminCard>
 
@@ -117,6 +121,7 @@ export function ProductForm({
           <Toggle name="isFeatured" label="Produit mis en avant" hint="Affiché sur l’accueil." defaultChecked={product?.isFeatured} />
           <Toggle name="isNew" label="Nouveauté" defaultChecked={product?.isNew} />
           <Toggle name="isBestSeller" label="Meilleure vente" defaultChecked={product?.isBestSeller} />
+          <Toggle name="isBio" label="Produit bio / naturel" hint="Apparaît sur la page Bio." defaultChecked={product?.isBio} />
         </div>
       </AdminCard>
 
@@ -129,6 +134,17 @@ export function ProductForm({
             <Textarea name="metaDescription" rows={2} defaultValue={product?.metaDescription ?? ''} />
           </Field>
         </div>
+      </AdminCard>
+
+      <AdminCard title="Traductions (optionnel)" description="Versions anglaise et arabe. Laissez vide pour afficher le français.">
+        <TranslationFields
+          value={product?.translations}
+          fields={[
+            { name: 'name', label: 'Nom' },
+            { name: 'shortDescription', label: 'Description courte', textarea: true },
+            { name: 'description', label: 'Description complète', textarea: true, rows: 5 },
+          ]}
+        />
       </AdminCard>
 
       <FormError message={state.message} />

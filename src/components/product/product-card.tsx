@@ -6,6 +6,8 @@ import { ProductVisual } from '@/components/ui/product-visual';
 import { Badge } from '@/components/ui/badge';
 import { StarRating } from '@/components/ui/star-rating';
 import { useStore } from '@/components/providers/store-provider';
+import { useLocale, useT } from '@/i18n/provider';
+import { tField } from '@/lib/localize';
 import { cn, formatPrice, discountPercent } from '@/lib/utils';
 import { cardToStored, type ProductCardData } from '@/lib/types';
 
@@ -19,10 +21,16 @@ export function ProductCard({
   className?: string;
 }) {
   const { toggleFavorite, isFavorite, toggleCompare, isComparing } = useStore();
+  const locale = useLocale();
+  const t = useT();
   const fav = isFavorite(product.id);
   const cmp = isComparing(product.id);
   const stored = cardToStored(product);
   const promo = discountPercent(product.price, product.oldPrice);
+  const name = tField({ translations: product.translations }, locale, 'name', product.name);
+  const categoryLabel = product.categoryName
+    ? tField({ translations: product.categoryTranslations }, locale, 'name', product.categoryName)
+    : null;
 
   return (
     <article
@@ -32,7 +40,7 @@ export function ProductCard({
       )}
     >
       <div className="relative aspect-square overflow-hidden">
-        <Link href={`/produits/${product.slug}`} aria-label={product.name} className="block h-full w-full">
+        <Link href={`/produits/${product.slug}`} aria-label={name} className="block h-full w-full">
           <ProductVisual
             name={product.name}
             accent={product.accent}
@@ -47,9 +55,10 @@ export function ProductCard({
         {/* Badges */}
         <div className="pointer-events-none absolute left-2.5 top-2.5 flex flex-col items-start gap-1.5">
           {promo && <Badge variant="promo">−{promo}%</Badge>}
-          {product.isNew && <Badge variant="new">Nouveau</Badge>}
-          {product.isBestSeller && !promo && <Badge variant="best">Top vente</Badge>}
-          {!product.inStock && <Badge variant="outline" className="bg-card/90">Sur commande</Badge>}
+          {product.isNew && <Badge variant="new">{t('card.new')}</Badge>}
+          {product.isBestSeller && !promo && <Badge variant="best">{t('card.best')}</Badge>}
+          {product.isBio && <Badge variant="soft">{t('card.bio')}</Badge>}
+          {!product.inStock && <Badge variant="outline" className="bg-card/90">{t('card.onOrder')}</Badge>}
         </div>
 
         {/* Quick actions */}
@@ -79,14 +88,14 @@ export function ProductCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-1.5 p-4">
-        {product.categoryName && (
+        {categoryLabel && (
           <span className="text-[0.7rem] font-semibold uppercase tracking-wider text-primary/80">
-            {product.categoryName}
+            {categoryLabel}
           </span>
         )}
         <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">
           <Link href={`/produits/${product.slug}`} className="transition-colors hover:text-primary">
-            {product.name}
+            {name}
           </Link>
         </h3>
         {product.brandName && (
@@ -108,7 +117,7 @@ export function ProductCard({
             href={`/produits/${product.slug}`}
             className="rounded-lg bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
           >
-            Détails
+            {t('common.details')}
           </Link>
         </div>
       </div>

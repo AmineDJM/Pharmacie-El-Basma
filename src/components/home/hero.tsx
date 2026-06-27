@@ -3,9 +3,11 @@ import { Star, ShieldCheck, MessageCircle, ArrowRight, MapPin, Sparkles, Heart }
 import { SearchDialog } from '@/components/search/search-dialog';
 import { ProductVisual } from '@/components/ui/product-visual';
 import { buttonVariants } from '@/components/ui/button';
+import { getI18n } from '@/i18n/locale';
 import { whatsappLink } from '@/lib/utils';
 
-export function Hero({ whatsapp }: { whatsapp: string }) {
+export async function Hero({ whatsapp }: { whatsapp: string }) {
+  const { t } = await getI18n();
   return (
     <section className="relative overflow-hidden">
       {/* Backdrop */}
@@ -20,26 +22,25 @@ export function Hero({ whatsapp }: { whatsapp: string }) {
         {/* Copy */}
         <div className="flex flex-col items-start gap-6 animate-fade-up">
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary-50 px-3.5 py-1.5 text-xs font-semibold text-primary-700 dark:bg-primary-100 dark:text-primary-900">
-            <MapPin className="h-3.5 w-3.5" /> Parapharmacie à Boufarik · Wilaya de Blida
+            <MapPin className="h-3.5 w-3.5" /> {t('hero.badge')}
           </span>
 
           <h1 className="text-balance font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            Votre santé et votre beauté,{' '}
-            <span className="text-gradient">entre de bonnes mains</span>
+            {t('hero.titleStart')}{' '}
+            <span className="text-gradient">{t('hero.titleHighlight')}</span>
           </h1>
 
           <p className="max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
-            Dermocosmétique, compléments alimentaires, soins bébé et conseils de professionnels.
-            La Parapharmacie El Basma met l’expertise et les plus grandes marques à votre portée, à Boufarik.
+            {t('hero.subtitle')}
           </p>
 
           <div className="w-full max-w-md">
-            <SearchDialog variant="bar" />
+            <SearchDialog variant="bar" placeholder={t('common.searchPlaceholder')} />
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <Link href="/produits" className={buttonVariants({ size: 'lg' })}>
-              Découvrir les produits
+              {t('hero.cta')}
               <ArrowRight className="h-5 w-5" />
             </Link>
             <a
@@ -49,7 +50,7 @@ export function Hero({ whatsapp }: { whatsapp: string }) {
               className={buttonVariants({ variant: 'outline', size: 'lg' })}
             >
               <MessageCircle className="h-5 w-5 text-[#25D366]" />
-              Conseil sur WhatsApp
+              {t('common.whatsappAdvice')}
             </a>
           </div>
 
@@ -62,11 +63,11 @@ export function Hero({ whatsapp }: { whatsapp: string }) {
                 ))}
               </div>
               <span className="font-semibold text-foreground">4,9/5</span>
-              <span className="text-muted-foreground">· avis clients</span>
+              <span className="text-muted-foreground">· {t('hero.rating')}</span>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <ShieldCheck className="h-4 w-4 text-primary" />
-              Produits authentiques
+              {t('hero.authentic')}
             </div>
           </div>
         </div>

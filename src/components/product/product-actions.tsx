@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Heart, Scale, MessageCircle, Phone, Check } from 'lucide-react';
 import { useStore } from '@/components/providers/store-provider';
+import { useT } from '@/i18n/provider';
 import { cn, whatsappLink, telLink } from '@/lib/utils';
 import { cardToStored, type ProductCardData } from '@/lib/types';
 
@@ -15,6 +16,7 @@ export function ProductActions({
   whatsapp: string;
   phone: string;
 }) {
+  const t = useT();
   const { toggleFavorite, isFavorite, toggleCompare, isComparing } = useStore();
   const stored = cardToStored(product);
   const fav = isFavorite(product.id);
@@ -33,13 +35,13 @@ export function ProductActions({
           rel="noopener noreferrer"
           className="inline-flex h-13 flex-1 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-3.5 text-sm font-semibold text-white shadow-soft transition-transform hover:scale-[1.01]"
         >
-          <MessageCircle className="h-5 w-5" /> Demander la disponibilité
+          <MessageCircle className="h-5 w-5" /> {t('product.askAvailability')}
         </a>
         <a
           href={telLink(phone)}
           className="inline-flex h-13 items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-accent"
         >
-          <Phone className="h-5 w-5" /> Appeler
+          <Phone className="h-5 w-5" /> {t('common.call')}
         </a>
       </div>
 
@@ -53,7 +55,7 @@ export function ProductActions({
           )}
         >
           <Heart className={cn('h-4 w-4', fav && 'fill-current')} />
-          {fav ? 'Dans vos favoris' : 'Ajouter aux favoris'}
+          {fav ? t('product.inFavorites') : t('product.addFavorite')}
         </button>
         <button
           onClick={() => toggleCompare(stored)}
@@ -64,7 +66,7 @@ export function ProductActions({
           )}
         >
           {cmp ? <Check className="h-4 w-4" /> : <Scale className="h-4 w-4" />}
-          {cmp ? 'Dans le comparateur' : 'Comparer'}
+          {cmp ? t('product.inCompare') : t('product.compare')}
         </button>
       </div>
 
@@ -72,7 +74,7 @@ export function ProductActions({
         href={`/contact?sujet=disponibilite&produit=${encodeURIComponent(product.name)}`}
         className="text-center text-xs text-muted-foreground underline-offset-4 hover:text-primary hover:underline"
       >
-        Ou envoyez-nous une demande via le formulaire de contact
+        {t('product.formFallback')}
       </Link>
     </div>
   );

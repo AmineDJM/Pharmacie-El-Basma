@@ -2,9 +2,10 @@
 
 import { redirect } from 'next/navigation';
 import { revalidateTag, revalidatePath } from 'next/cache';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db';
 import { getCurrentUser } from '@/lib/auth';
-import { authenticate, createSession, destroySession } from '@/lib/auth';
+import { authenticate, createSession, destroySession, hashPassword } from '@/lib/auth';
 import { TAGS } from '@/lib/data';
 import { slugify } from '@/lib/utils';
 import type { FormState } from './public';
@@ -37,6 +38,20 @@ const optNum = (fd: FormData, key: string) => {
   return Number.isFinite(n) ? n : null;
 };
 const optStr = (fd: FormData, key: string) => str(fd, key) || null;
+
+/** Build a translations JSON ({ en:{...}, ar:{...} }) from tr_<locale>_<field> inputs. */
+function readTranslations(formData: FormData, fields: string[]): Prisma.InputJsonValue | undefined {
+  const out: Record<string, Record<string, string>> = {};
+  for (const loc of ['en', 'ar']) {
+    const obj: Record<string, string> = {};
+    for (const f of fields) {
+      const v = str(formData, `tr_${loc}_${f}`);
+      if (v) obj[f] = v;
+    }
+    if (Object.keys(obj).length) out[loc] = obj;
+  }
+  return Object.keys(out).length ? (out as Prisma.InputJsonValue) : undefined;
+}
 
 async function uniqueSlug(
   finder: (slug: string) => Promise<{ id: string } | null>,
@@ -107,6 +122,8 @@ export async function saveProduct(_prev: FormState, formData: FormData): Promise
     isFeatured: bool(formData, 'isFeatured'),
     isNew: bool(formData, 'isNew'),
     isBestSeller: bool(formData, 'isBestSeller'),
+    isBio: bool(formData, 'isBio'),
+    translations: readTranslations(formData, ['name', 'shortDescription', 'description']),
     rating: optNum(formData, 'rating') ?? 4.8,
     reviewCount: int(formData, 'reviewCount'),
     highlights: optStr(formData, 'highlights'),
@@ -150,6 +167,7 @@ export async function saveCategory(_prev: FormState, formData: FormData): Promis
     description: optStr(formData, 'description'),
     icon: optStr(formData, 'icon'),
     accent: str(formData, 'accent') || 'emerald',
+    translations: readTranslations(formData, ['name', 'description']),
     parentId: parentId === id ? null : parentId,
     order: int(formData, 'order'),
     featured: bool(formData, 'featured'),
@@ -231,6 +249,7 @@ export async function saveArticle(_prev: FormState, formData: FormData): Promise
     author: str(formData, 'author') || 'Équipe Parapharmacie El Basma',
     readingTime: int(formData, 'readingTime') || 4,
     accent: str(formData, 'accent') || 'emerald',
+    translations: readTranslations(formData, ['title', 'excerpt', 'content']),
     published: bool(formData, 'published'),
     featured: bool(formData, 'featured'),
     metaTitle: optStr(formData, 'metaTitle'),
@@ -305,6 +324,7 @@ export async function saveFaq(_prev: FormState, formData: FormData): Promise<For
     category: str(formData, 'category') || 'Général',
     order: int(formData, 'order'),
     published: bool(formData, 'published'),
+    translations: readTranslations(formData, ['question', 'answer']),
   };
 
   if (id) await prisma.faq.update({ where: { id }, data });
@@ -397,4 +417,46 @@ export async function saveSettings(_prev: FormState, formData: FormData): Promis
 
   revalidateAll(TAGS.settings);
   return { ok: true, message: 'Paramètres enregistrés avec succès.' };
+}
+
+// ---------------------------------------------------------------------------
+// Comptes administrateurs
+// ---------------------------------------------------------------------------
+
+export async function saveAdminUser(_prev: FormState, formData: FormData): Promise<FormState> {
+  await requireAuth();
+  const id = optStr(formData, 'id');
+  const email = str(formData, 'email').toLowerCase();
+  const name = str(formData, 'name');
+  const role = str(formData, 'role') || 'admin';
+  const password = String(formData.get('password') ?? '');
+
+  if (!email || !name) return { ok: false, message: 'Le nom et l’e-mail sont obligatoires.' };
+
+  const existing = await prisma.adminUser.findUnique({ where: { email } });
+  if (existing && existing.id !== id) return { ok: false, message: 'Cet e-mail est déjà utilisé.' };
+
+  if (!id) {
+    if (password.length < 6) return { ok: false, message: 'Le mot de passe doit faire au moins 6 caractères.' };
+    await prisma.adminUser.create({ data: { email, name, role, passwordHash: await hashPassword(password) } });
+  } else {
+    const data: { email: string; name: string; role: string; passwordHash?: string } = { email, name, role };
+    if (password) {
+      if (password.length < 6) return { ok: false, message: 'Le mot de passe doit faire au moins 6 caractères.' };
+      data.passwordHash = await hashPassword(password);
+    }
+    await prisma.adminUser.update({ where: { id }, data });
+  }
+
+  redirect('/admin/utilisateurs');
+}
+
+export async function deleteAdminUser(formData: FormData) {
+  const me = await requireAuth();
+  const id = str(formData, 'id');
+  if (!id || id === me.sub) return; // impossible de se supprimer soi-même
+  const count = await prisma.adminUser.count();
+  if (count <= 1) return; // garder au moins un compte
+  await prisma.adminUser.delete({ where: { id } });
+  revalidatePath('/admin/utilisateurs');
 }

@@ -9,6 +9,8 @@ import { SectionHeading } from '@/components/ui/section-heading';
 import { buttonVariants } from '@/components/ui/button';
 import { JsonLd } from '@/components/seo/json-ld';
 import { getArticleBySlug, getArticles, getSettings } from '@/lib/data';
+import { getI18n } from '@/i18n/locale';
+import { localize } from '@/lib/localize';
 import { buildMetadata, articleSchema, breadcrumbSchema } from '@/lib/seo';
 import { getAccent } from '@/lib/visuals';
 import { cn, formatDate, whatsappLink } from '@/lib/utils';
@@ -37,6 +39,8 @@ export default async function ArticlePage({ params }: { params: Params }) {
   const [all, settings] = await Promise.all([getArticles(), getSettings()]);
   const related = all.filter((a) => a.slug !== article.slug).slice(0, 3);
   const accent = getAccent(article.accent);
+  const { locale, t } = await getI18n();
+  const la = localize(article, locale, ['title', 'excerpt']);
 
   return (
     <>
@@ -46,8 +50,8 @@ export default async function ArticlePage({ params }: { params: Params }) {
           <div className="container py-8 sm:py-12">
             <Breadcrumbs
               items={[
-                { label: 'Conseils santé', href: '/conseils-sante' },
-                { label: article.title, href: `/conseils-sante/${article.slug}` },
+                { label: t('nav.advice'), href: '/conseils-sante' },
+                { label: la.title, href: `/conseils-sante/${article.slug}` },
               ]}
             />
             <div className="mt-6 max-w-3xl">
@@ -55,9 +59,9 @@ export default async function ArticlePage({ params }: { params: Params }) {
                 {article.category}
               </span>
               <h1 className="mt-4 text-balance font-display text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-                {article.title}
+                {la.title}
               </h1>
-              <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">{article.excerpt}</p>
+              <p className="mt-4 text-pretty text-lg leading-relaxed text-muted-foreground">{la.excerpt}</p>
               <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5"><User className="h-4 w-4" /> {article.author}</span>
                 <span className="inline-flex items-center gap-1.5"><Calendar className="h-4 w-4" /> {formatDate(article.publishedAt)}</span>

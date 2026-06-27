@@ -47,13 +47,15 @@ export const siteConfig = {
   },
 } as const;
 
-export const MAIN_NAV: { label: string; href: string }[] = [
-  { label: 'Accueil', href: '/' },
-  { label: 'Produits', href: '/produits' },
-  { label: 'Promotions', href: '/promotions' },
-  { label: 'Conseils santé', href: '/conseils-sante' },
-  { label: 'À propos', href: '/a-propos' },
-  { label: 'Contact', href: '/contact' },
+// `key` maps to the i18n dictionary (nav.*); `label` is the French fallback.
+export const MAIN_NAV: { label: string; href: string; key: string }[] = [
+  { label: 'Accueil', href: '/', key: 'home' },
+  { label: 'Produits', href: '/produits', key: 'products' },
+  { label: 'Bio', href: '/bio', key: 'bio' },
+  { label: 'Promotions', href: '/promotions', key: 'promotions' },
+  { label: 'Conseils santé', href: '/conseils-sante', key: 'advice' },
+  { label: 'À propos', href: '/a-propos', key: 'about' },
+  { label: 'Contact', href: '/contact', key: 'contact' },
 ];
 
 export const FOOTER_NAV: { title: string; links: { label: string; href: string }[] }[] = [

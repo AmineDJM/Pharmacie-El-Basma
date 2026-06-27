@@ -19,6 +19,8 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { SearchDialog } from '@/components/search/search-dialog';
 import { CategoryIcon } from '@/components/ui/category-icon';
 import { useStore } from '@/components/providers/store-provider';
+import { useT } from '@/i18n/provider';
+import { LanguageSwitcher } from '@/i18n/language-switcher';
 import { MAIN_NAV } from '@/lib/constants';
 import { getAccent } from '@/lib/visuals';
 import { cn, whatsappLink, telLink } from '@/lib/utils';
@@ -32,6 +34,7 @@ interface HeaderProps {
 
 export function Header({ categories, brands, settings }: HeaderProps) {
   const pathname = usePathname();
+  const t = useT();
   const { favorites, compare, ready } = useStore();
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -106,7 +109,7 @@ export function Header({ categories, brands, settings }: HeaderProps) {
           {/* Desktop nav */}
           <nav className="ml-2 hidden items-center gap-1 lg:flex" onMouseLeave={scheduleClose}>
             {MAIN_NAV.map((item) =>
-              item.label === 'Produits' ? (
+              item.key === 'products' ? (
                 <div key={item.href} className="relative">
                   <button
                     onMouseEnter={openMega}
@@ -119,7 +122,7 @@ export function Header({ categories, brands, settings }: HeaderProps) {
                         : 'text-foreground/80 hover:text-foreground',
                     )}
                   >
-                    {item.label}
+                    {t(`nav.${item.key}`)}
                     <ChevronDown className={cn('h-4 w-4 transition-transform', megaOpen && 'rotate-180')} />
                   </button>
                 </div>
@@ -133,7 +136,7 @@ export function Header({ categories, brands, settings }: HeaderProps) {
                     pathname === item.href ? 'text-primary' : 'text-foreground/80 hover:text-foreground',
                   )}
                 >
-                  {item.label}
+                  {t(`nav.${item.key}`)}
                 </Link>
               ),
             )}
@@ -141,17 +144,17 @@ export function Header({ categories, brands, settings }: HeaderProps) {
 
           {/* Search (desktop) */}
           <div className="ml-auto hidden max-w-xs flex-1 md:block lg:max-w-sm">
-            <SearchDialog variant="bar" />
+            <SearchDialog variant="bar" placeholder={t('common.searchPlaceholder')} />
           </div>
 
           {/* Actions */}
           <div className="ml-auto flex items-center gap-1.5 md:ml-2">
             <div className="md:hidden">
-              <SearchDialog variant="icon" />
+              <SearchDialog variant="icon" placeholder={t('common.searchPlaceholder')} />
             </div>
             <Link
               href="/favoris"
-              aria-label="Mes favoris"
+              aria-label={t('nav.favorites')}
               className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-colors hover:bg-accent sm:inline-flex"
             >
               <Heart className="h-[1.15rem] w-[1.15rem]" />
@@ -159,18 +162,19 @@ export function Header({ categories, brands, settings }: HeaderProps) {
             </Link>
             <Link
               href="/comparateur"
-              aria-label="Comparateur"
+              aria-label={t('nav.compare')}
               className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-colors hover:bg-accent sm:inline-flex"
             >
               <Scale className="h-[1.15rem] w-[1.15rem]" />
               {ready && compare.length > 0 && <CountBadge n={compare.length} />}
             </Link>
+            <LanguageSwitcher />
             <ThemeToggle className="hidden sm:inline-flex" />
             <a
               href={telLink(settings.phone)}
               className="hidden items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-soft transition-all hover:bg-primary-600 hover:shadow-glow xl:inline-flex"
             >
-              <Phone className="h-4 w-4" /> Appeler
+              <Phone className="h-4 w-4" /> {t('common.call')}
             </a>
             <button
               onClick={() => setMobileOpen(true)}
@@ -270,7 +274,7 @@ export function Header({ categories, brands, settings }: HeaderProps) {
             </div>
 
             <nav className="flex flex-col gap-1 p-4">
-              {MAIN_NAV.filter((i) => i.label !== 'Produits').map((item) => (
+              {MAIN_NAV.filter((i) => i.key !== 'products').map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -279,7 +283,7 @@ export function Header({ categories, brands, settings }: HeaderProps) {
                     pathname === item.href ? 'bg-primary-50 text-primary dark:bg-primary-100' : 'hover:bg-accent',
                   )}
                 >
-                  {item.label}
+                  {t(`nav.${item.key}`)}
                 </Link>
               ))}
 
@@ -316,15 +320,15 @@ export function Header({ categories, brands, settings }: HeaderProps) {
             <div className="mt-auto space-y-3 border-t border-border p-4">
               <div className="flex gap-2">
                 <Link href="/favoris" className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border py-2.5 text-sm font-medium">
-                  <Heart className="h-4 w-4" /> Favoris {ready && favorites.length > 0 && `(${favorites.length})`}
+                  <Heart className="h-4 w-4" /> {t('nav.favorites')} {ready && favorites.length > 0 && `(${favorites.length})`}
                 </Link>
                 <Link href="/comparateur" className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border py-2.5 text-sm font-medium">
-                  <Scale className="h-4 w-4" /> Comparer {ready && compare.length > 0 && `(${compare.length})`}
+                  <Scale className="h-4 w-4" /> {t('nav.compare')} {ready && compare.length > 0 && `(${compare.length})`}
                 </Link>
               </div>
               <div className="flex gap-2">
                 <a href={telLink(settings.phone)} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground">
-                  <Phone className="h-4 w-4" /> Appeler
+                  <Phone className="h-4 w-4" /> {t('common.call')}
                 </a>
                 <a
                   href={whatsappLink(settings.whatsapp, 'Bonjour, je vous contacte depuis votre site.')}

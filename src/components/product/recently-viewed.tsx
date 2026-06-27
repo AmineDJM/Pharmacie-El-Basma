@@ -41,6 +41,7 @@ export function RecentlyViewed({ excludeId }: { excludeId?: string }) {
                 reviewCount: 0,
                 isNew: false,
                 isBestSeller: false,
+                isBio: false,
                 inStock: true,
                 imageUrl: p.imageUrl ?? null,
                 brandName: p.brandName ?? null,

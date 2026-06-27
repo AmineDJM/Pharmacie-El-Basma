@@ -1,14 +1,21 @@
+'use client';
+
 import { Quote } from 'lucide-react';
 import { StarRating } from '@/components/ui/star-rating';
+import { useLocale } from '@/i18n/provider';
+import { tField } from '@/lib/localize';
 import { cn } from '@/lib/utils';
 
 export function ReviewCard({
   review,
   className,
 }: {
-  review: { author: string; rating: number; content: string; source: string; location: string };
+  review: { author: string; rating: number; content: string; source: string; location: string; translations?: unknown };
   className?: string;
 }) {
+  const locale = useLocale();
+  const content = tField({ translations: review.translations }, locale, 'content', review.content);
+
   return (
     <figure
       className={cn(
@@ -20,9 +27,7 @@ export function ReviewCard({
         <StarRating rating={review.rating} size="md" />
         <Quote className="h-6 w-6 text-primary/20" aria-hidden />
       </div>
-      <blockquote className="flex-1 text-pretty leading-relaxed text-foreground/90">
-        “{review.content}”
-      </blockquote>
+      <blockquote className="flex-1 text-pretty leading-relaxed text-foreground/90">“{content}”</blockquote>
       <figcaption className="flex items-center gap-3 border-t border-border pt-4">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-50 font-semibold text-primary-700 dark:bg-primary-100 dark:text-primary-900">
           {review.author.charAt(0)}
@@ -30,7 +35,7 @@ export function ReviewCard({
         <div className="text-sm">
           <p className="font-semibold text-foreground">{review.author}</p>
           <p className="text-xs text-muted-foreground">
-            {review.location} · Avis {review.source}
+            {review.location} · {review.source}
           </p>
         </div>
       </figcaption>

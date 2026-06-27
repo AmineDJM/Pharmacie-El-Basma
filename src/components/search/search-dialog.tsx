@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Search, X, Loader2, TrendingUp, CornerDownLeft } from 'lucide-react';
 import { ProductVisual } from '@/components/ui/product-visual';
+import { useT } from '@/i18n/provider';
 import { cn, formatPrice } from '@/lib/utils';
 
 interface SearchResult {
@@ -22,10 +23,13 @@ const POPULAR = ['Anthelios solaire', 'Cicaplast', 'Sérum vitamine C', 'Lipikar
 export function SearchDialog({
   variant = 'bar',
   className,
+  placeholder = 'Rechercher un produit, une marque…',
 }: {
   variant?: 'bar' | 'icon';
   className?: string;
+  placeholder?: string;
 }) {
+  const t = useT();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -64,7 +68,7 @@ export function SearchDialog({
     }
     setLoading(true);
     const controller = new AbortController();
-    const t = setTimeout(async () => {
+    const timer = setTimeout(async () => {
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
           signal: controller.signal,
@@ -78,7 +82,7 @@ export function SearchDialog({
       }
     }, 220);
     return () => {
-      clearTimeout(t);
+      clearTimeout(timer);
       controller.abort();
     };
   }, [query]);
@@ -105,10 +109,7 @@ export function SearchDialog({
           aria-label="Ouvrir la recherche"
         >
           <Search className="h-4 w-4" />
-          <span className="flex-1">Rechercher un produit, une marque…</span>
-          <kbd className="hidden rounded border border-border bg-card px-1.5 py-0.5 text-[0.65rem] font-medium sm:inline-block">
-            Ctrl K
-          </kbd>
+          <span className="flex-1">{placeholder}</span>
         </button>
       ) : (
         <button
@@ -149,7 +150,7 @@ export function SearchDialog({
                 ref={inputRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Rechercher un produit, une marque, une catégorie…"
+                placeholder={t('search.placeholder')}
                 className="h-14 w-full bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
                 autoComplete="off"
                 enterKeyHint="search"
@@ -169,7 +170,7 @@ export function SearchDialog({
               {query.trim().length < 2 ? (
                 <div className="p-4">
                   <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <TrendingUp className="h-3.5 w-3.5" /> Recherches populaires
+                    <TrendingUp className="h-3.5 w-3.5" /> {t('search.popular')}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {POPULAR.map((term) => (
@@ -185,7 +186,7 @@ export function SearchDialog({
                 </div>
               ) : results.length === 0 && !loading ? (
                 <p className="p-6 text-center text-sm text-muted-foreground">
-                  Aucun produit trouvé pour « {query} ». Essayez un autre terme ou contactez-nous.
+                  {t('search.noResults')} « {query} »
                 </p>
               ) : (
                 <ul className="space-y-1">
@@ -222,7 +223,7 @@ export function SearchDialog({
                 onClick={() => goToResults(query)}
                 className="flex w-full items-center justify-between border-t border-border bg-secondary/40 px-4 py-3 text-sm font-medium text-primary hover:bg-secondary"
               >
-                <span>Voir tous les résultats pour « {query} »</span>
+                <span>{t('search.allResults')} « {query} »</span>
                 <CornerDownLeft className="h-4 w-4" />
               </button>
             )}

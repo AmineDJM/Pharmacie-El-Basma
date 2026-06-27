@@ -25,6 +25,7 @@ import {
   getFaqs,
 } from '@/lib/data';
 import { toCardData } from '@/lib/types';
+import { getI18n } from '@/i18n/locale';
 import { buildMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = {
@@ -38,13 +39,14 @@ export const metadata: Metadata = {
 };
 
 const STATS = [
-  { icon: ShieldCheck, label: 'Produits authentiques', value: 'Marques de référence' },
-  { icon: Stethoscope, label: 'Conseil pharmacien', value: 'Gratuit & personnalisé' },
-  { icon: Star, label: 'Satisfaction client', value: '4,9 / 5' },
-  { icon: Truck, label: 'Disponibilité rapide', value: 'Boufarik & Blida' },
-];
+  { icon: ShieldCheck, labelKey: 'stats.authenticTitle', valueKey: 'stats.authenticText' },
+  { icon: Stethoscope, labelKey: 'stats.adviceTitle', valueKey: 'stats.adviceText' },
+  { icon: Star, labelKey: 'stats.satisfactionTitle', value: '4,9 / 5' },
+  { icon: Truck, labelKey: 'stats.deliveryTitle', valueKey: 'stats.deliveryText' },
+] as const;
 
 export default async function HomePage() {
+  const { t } = await getI18n();
   const [settings, categories, featured, bestSellers, promos, brands, reviews, articles, faqs] =
     await Promise.all([
       getSettings(),
@@ -66,13 +68,13 @@ export default async function HomePage() {
       <section className="border-y border-border bg-card/50">
         <div className="container grid grid-cols-2 gap-6 py-8 lg:grid-cols-4">
           {STATS.map((s) => (
-            <div key={s.label} className="flex items-center gap-3">
+            <div key={s.labelKey} className="flex items-center gap-3">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary dark:bg-primary-100">
                 <s.icon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-foreground">{s.value}</p>
-                <p className="text-xs text-muted-foreground">{s.label}</p>
+                <p className="text-sm font-bold text-foreground">{'valueKey' in s ? t(s.valueKey) : s.value}</p>
+                <p className="text-xs text-muted-foreground">{t(s.labelKey)}</p>
               </div>
             </div>
           ))}
@@ -84,9 +86,9 @@ export default async function HomePage() {
         <div className="container">
           <Reveal>
             <SectionHeading
-              eyebrow="Nos univers"
-              title="Trouvez le bon soin, rapidement"
-              description="Une sélection complète, organisée par besoin, pour prendre soin de toute la famille."
+              eyebrow={t('sections.categoriesEyebrow')}
+              title={t('sections.categoriesTitle')}
+              description={t('sections.categoriesText')}
               align="left"
               className="mb-10"
             />
@@ -100,7 +102,7 @@ export default async function HomePage() {
           </RevealGroup>
           <div className="mt-8">
             <Link href="/produits" className={buttonVariants({ variant: 'outline' })}>
-              Voir tout le catalogue <ArrowRight className="h-4 w-4" />
+              {t('common.allProducts')} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -112,9 +114,9 @@ export default async function HomePage() {
           <div className="container">
             <Reveal>
               <SectionHeading
-                eyebrow={<><Sparkles className="h-3.5 w-3.5" /> Coups de cœur</>}
-                title="Produits mis en avant"
-                description="Les essentiels recommandés par notre équipe de pharmaciens."
+                eyebrow={<><Sparkles className="h-3.5 w-3.5" /> {t('sections.featuredEyebrow')}</>}
+                title={t('sections.featuredTitle')}
+                description={t('sections.featuredText')}
                 align="left"
                 className="mb-10"
               />
@@ -131,13 +133,13 @@ export default async function HomePage() {
             <Reveal>
               <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
                 <SectionHeading
-                  eyebrow={<><Tag className="h-3.5 w-3.5" /> Bons plans</>}
-                  title="Promotions du moment"
-                  description="Profitez d’offres limitées sur une sélection de produits dermocosmétiques."
+                  eyebrow={<><Tag className="h-3.5 w-3.5" /> {t('sections.promoEyebrow')}</>}
+                  title={t('sections.promoTitle')}
+                  description={t('sections.promoText')}
                   align="left"
                 />
                 <Link href="/promotions" className={buttonVariants({ variant: 'primary' })}>
-                  Toutes les promos <ArrowRight className="h-4 w-4" />
+                  {t('sections.promoAll')} <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </Reveal>
@@ -156,8 +158,8 @@ export default async function HomePage() {
           <div className="container">
             <Reveal>
               <SectionHeading
-                eyebrow="Marques de confiance"
-                title="Les plus grandes marques de parapharmacie"
+                eyebrow={t('sections.brandsEyebrow')}
+                title={t('sections.brandsTitle')}
                 align="center"
                 className="mb-10 items-center"
               />
@@ -173,9 +175,9 @@ export default async function HomePage() {
           <div className="container">
             <Reveal>
               <SectionHeading
-                eyebrow="Plébiscités"
-                title="Meilleures ventes"
-                description="Les produits préférés de nos clients à Boufarik et dans la région de Blida."
+                eyebrow={t('sections.bestEyebrow')}
+                title={t('sections.bestTitle')}
+                description={t('sections.bestText')}
                 align="left"
                 className="mb-10"
               />
@@ -192,13 +194,13 @@ export default async function HomePage() {
             <Reveal>
               <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
                 <SectionHeading
-                  eyebrow="Conseils santé"
-                  title="Nos conseils & guides bien-être"
-                  description="Des articles rédigés par notre équipe pour vous aider à mieux choisir et mieux vivre."
+                  eyebrow={t('sections.adviceEyebrow')}
+                  title={t('sections.adviceTitle')}
+                  description={t('sections.adviceText')}
                   align="left"
                 />
                 <Link href="/conseils-sante" className={buttonVariants({ variant: 'outline' })}>
-                  Tous les articles <ArrowRight className="h-4 w-4" />
+                  {t('sections.adviceAll')} <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </Reveal>
@@ -219,9 +221,9 @@ export default async function HomePage() {
           <div className="container">
             <Reveal>
               <SectionHeading
-                eyebrow={<><Star className="h-3.5 w-3.5 fill-current" /> Avis vérifiés</>}
-                title="Ils nous font confiance"
-                description="La satisfaction et le bien-être de nos clients sont notre première priorité."
+                eyebrow={<><Star className="h-3.5 w-3.5 fill-current" /> {t('sections.reviewsEyebrow')}</>}
+                title={t('sections.reviewsTitle')}
+                description={t('sections.reviewsText')}
                 align="center"
                 className="mb-10 items-center"
               />
@@ -243,13 +245,13 @@ export default async function HomePage() {
           <div className="container grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
             <Reveal>
               <SectionHeading
-                eyebrow="Questions fréquentes"
-                title="Tout ce que vous devez savoir"
-                description="Vous ne trouvez pas votre réponse ? Contactez-nous, notre équipe vous répond avec plaisir."
+                eyebrow={t('sections.faqEyebrow')}
+                title={t('sections.faqTitle')}
+                description={t('sections.faqText')}
                 align="left"
               />
               <Link href="/faq" className={buttonVariants({ variant: 'outline', className: 'mt-6' })}>
-                Voir toutes les questions <ArrowRight className="h-4 w-4" />
+                {t('sections.faqAll')} <ArrowRight className="h-4 w-4" />
               </Link>
             </Reveal>
             <Reveal delay={0.1}>

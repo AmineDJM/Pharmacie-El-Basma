@@ -4,6 +4,7 @@ import { PageHeader } from '@/components/layout/page-header';
 import { ContactForm } from '@/components/forms/contact-form';
 import { MapSection } from '@/components/home/map-section';
 import { getSettings } from '@/lib/data';
+import { getI18n } from '@/i18n/locale';
 import { buildMetadata } from '@/lib/seo';
 import { whatsappLink, telLink } from '@/lib/utils';
 
@@ -15,6 +16,7 @@ export const metadata = buildMetadata({
 });
 
 export default async function ContactPage() {
+  const { t } = await getI18n();
   const settings = await getSettings();
 
   const methods = [
@@ -27,9 +29,9 @@ export default async function ContactPage() {
     <>
       <PageHeader
         breadcrumbs={[{ label: 'Contact', href: '/contact' }]}
-        eyebrow="Contact"
-        title="Parlons de vos besoins"
-        description="Une question, une disponibilité à vérifier, un conseil ? Notre équipe vous répond rapidement."
+        eyebrow={t('contact.eyebrow')}
+        title={t('contact.title')}
+        description={t('contact.subtitle')}
       />
 
       <section className="section">
@@ -56,9 +58,9 @@ export default async function ContactPage() {
 
           <div className="grid gap-8 lg:grid-cols-2">
             <div className="rounded-3xl border border-border bg-card p-6 shadow-card sm:p-8">
-              <h2 className="font-display text-2xl font-bold text-foreground">Écrivez-nous</h2>
+              <h2 className="font-display text-2xl font-bold text-foreground">{t('contact.write')}</h2>
               <p className="mb-6 mt-1.5 text-sm text-muted-foreground">
-                Remplissez le formulaire, nous revenons vers vous sous 24h ouvrées.
+                {t('contact.writeText')}
               </p>
               <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-muted" />}>
                 <ContactForm />

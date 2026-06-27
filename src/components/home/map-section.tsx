@@ -1,9 +1,11 @@
 import { MapPin, Phone, MessageCircle, Clock, Navigation } from 'lucide-react';
 import { buttonVariants } from '@/components/ui/button';
 import type { Settings } from '@/lib/data';
+import { getI18n } from '@/i18n/locale';
 import { whatsappLink, telLink } from '@/lib/utils';
 
-export function MapSection({ settings, showHeading = true }: { settings: Settings; showHeading?: boolean }) {
+export async function MapSection({ settings, showHeading = true }: { settings: Settings; showHeading?: boolean }) {
+  const { t } = await getI18n();
   const fullAddress = `${settings.addressLine}, ${settings.city}, ${settings.wilaya}, ${settings.country}`;
   const query = `${settings.latitude},${settings.longitude}`;
   const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=15&output=embed`;
@@ -15,9 +17,9 @@ export function MapSection({ settings, showHeading = true }: { settings: Setting
       <div className="flex flex-col gap-6 p-7 sm:p-9">
         {showHeading && (
           <div>
-            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Nous trouver</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">{t('sections.mapEyebrow')}</span>
             <h2 className="mt-2 font-display text-2xl font-bold text-foreground sm:text-3xl">
-              Venez nous rencontrer à Boufarik
+              {t('sections.mapTitle')}
             </h2>
           </div>
         )}
@@ -28,7 +30,7 @@ export function MapSection({ settings, showHeading = true }: { settings: Setting
               <MapPin className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">Adresse</p>
+              <p className="font-semibold text-foreground">{t('contact.addressLabel')}</p>
               <p className="text-sm text-muted-foreground">{fullAddress}</p>
             </div>
           </li>
@@ -37,7 +39,7 @@ export function MapSection({ settings, showHeading = true }: { settings: Setting
               <Clock className="h-5 w-5" />
             </div>
             <div>
-              <p className="font-semibold text-foreground">Horaires</p>
+              <p className="font-semibold text-foreground">{t('contact.hoursLabel')}</p>
               <ul className="mt-1 space-y-0.5 text-sm text-muted-foreground">
                 {settings.openingHours.map((oh) => (
                   <li key={oh.day} className="flex justify-between gap-6">
@@ -57,10 +59,10 @@ export function MapSection({ settings, showHeading = true }: { settings: Setting
             rel="noopener noreferrer"
             className={buttonVariants({ size: 'md' })}
           >
-            <Navigation className="h-4 w-4" /> Itinéraire
+            <Navigation className="h-4 w-4" /> {t('common.itinerary')}
           </a>
           <a href={telLink(settings.phone)} className={buttonVariants({ variant: 'outline', size: 'md' })}>
-            <Phone className="h-4 w-4" /> Appeler
+            <Phone className="h-4 w-4" /> {t('common.call')}
           </a>
           <a
             href={whatsappLink(settings.whatsapp, 'Bonjour, je souhaite des informations.')}
@@ -68,7 +70,7 @@ export function MapSection({ settings, showHeading = true }: { settings: Setting
             rel="noopener noreferrer"
             className={buttonVariants({ variant: 'outline', size: 'md' })}
           >
-            <MessageCircle className="h-4 w-4 text-[#25D366]" /> WhatsApp
+            <MessageCircle className="h-4 w-4 text-[#25D366]" /> {t('common.whatsapp')}
           </a>
         </div>
       </div>

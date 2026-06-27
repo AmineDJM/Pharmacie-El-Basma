@@ -5,6 +5,7 @@ import { FaqAccordion } from '@/components/home/faq-accordion';
 import { buttonVariants } from '@/components/ui/button';
 import { JsonLd } from '@/components/seo/json-ld';
 import { getFaqs } from '@/lib/data';
+import { getI18n } from '@/i18n/locale';
 import { buildMetadata, faqSchema } from '@/lib/seo';
 
 export const metadata = buildMetadata({
@@ -15,6 +16,7 @@ export const metadata = buildMetadata({
 });
 
 export default async function FaqPage() {
+  const { t } = await getI18n();
   const faqs = await getFaqs();
 
   const groups = faqs.reduce<Record<string, typeof faqs>>((acc, faq) => {
@@ -26,9 +28,9 @@ export default async function FaqPage() {
     <>
       <PageHeader
         breadcrumbs={[{ label: 'FAQ', href: '/faq' }]}
-        eyebrow="Aide"
-        title="Questions fréquentes"
-        description="Tout ce que vous devez savoir sur nos produits, nos services et notre parapharmacie à Boufarik."
+        eyebrow={t('pages.faqEyebrow')}
+        title={t('pages.faqTitle')}
+        description={t('pages.faqText')}
       />
 
       <section className="section">
@@ -46,12 +48,12 @@ export default async function FaqPage() {
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary dark:bg-primary-100">
               <MessageCircleQuestion className="h-7 w-7" />
             </div>
-            <h2 className="font-display text-xl font-bold text-foreground">Vous n’avez pas trouvé votre réponse ?</h2>
+            <h2 className="font-display text-xl font-bold text-foreground">{t('pages.faqCtaTitle')}</h2>
             <p className="max-w-md text-sm text-muted-foreground">
-              Notre équipe est à votre écoute pour répondre à toutes vos questions et vous conseiller.
+              {t('pages.faqCtaText')}
             </p>
             <Link href="/contact" className={buttonVariants()}>
-              Contactez-nous
+              {t('pages.faqCtaButton')}
             </Link>
           </div>
         </div>

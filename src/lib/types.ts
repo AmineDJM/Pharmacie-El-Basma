@@ -35,12 +35,16 @@ export interface ProductCardData {
   reviewCount: number;
   isNew: boolean;
   isBestSeller: boolean;
+  isBio: boolean;
   inStock: boolean;
   imageUrl: string | null;
   brandName: string | null;
   categoryName: string | null;
   categorySlug: string | null;
   accent: string;
+  // Raw translation maps — the (client) card localises via the locale context.
+  translations?: unknown;
+  categoryTranslations?: unknown;
 }
 
 /** Map a Prisma product (with category/brand) to the card data shape. */
@@ -55,10 +59,12 @@ export function toCardData(p: {
   reviewCount: number;
   isNew?: boolean;
   isBestSeller?: boolean;
+  isBio?: boolean;
   inStock?: boolean;
   imageUrl?: string | null;
+  translations?: unknown;
   brand?: { name: string } | null;
-  category?: { name: string; slug: string; accent?: string } | null;
+  category?: { name: string; slug: string; accent?: string; translations?: unknown } | null;
 }): ProductCardData {
   return {
     id: p.id,
@@ -71,12 +77,15 @@ export function toCardData(p: {
     reviewCount: p.reviewCount,
     isNew: p.isNew ?? false,
     isBestSeller: p.isBestSeller ?? false,
+    isBio: p.isBio ?? false,
     inStock: p.inStock ?? true,
     imageUrl: p.imageUrl ?? null,
     brandName: p.brand?.name ?? null,
     categoryName: p.category?.name ?? null,
     categorySlug: p.category?.slug ?? null,
     accent: p.category?.accent ?? 'emerald',
+    translations: p.translations,
+    categoryTranslations: p.category?.translations,
   };
 }
 
@@ -110,6 +119,7 @@ export function storedToCard(p: StoredProduct): ProductCardData {
     reviewCount: 0,
     isNew: false,
     isBestSeller: false,
+    isBio: false,
     inStock: true,
     imageUrl: p.imageUrl ?? null,
     brandName: p.brandName ?? null,

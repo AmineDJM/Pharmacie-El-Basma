@@ -5,6 +5,7 @@ import { ArticleCard } from '@/components/cards/article-card';
 import { Reveal, RevealGroup, RevealItem } from '@/components/ui/reveal';
 import { getArticles } from '@/lib/data';
 import { getAccent } from '@/lib/visuals';
+import { getI18n } from '@/i18n/locale';
 import { buildMetadata } from '@/lib/seo';
 import { cn, formatDate } from '@/lib/utils';
 
@@ -16,6 +17,7 @@ export const metadata = buildMetadata({
 });
 
 export default async function ConseilsPage() {
+  const { t } = await getI18n();
   const articles = await getArticles();
   const [featured, ...rest] = articles;
   const accent = featured ? getAccent(featured.accent) : getAccent('emerald');
@@ -24,9 +26,9 @@ export default async function ConseilsPage() {
     <>
       <PageHeader
         breadcrumbs={[{ label: 'Conseils santé', href: '/conseils-sante' }]}
-        eyebrow="Le blog santé"
-        title="Conseils santé & guides bien-être"
-        description="Des articles fiables et pratiques pour mieux comprendre vos besoins et faire les bons choix au quotidien."
+        eyebrow={t('pages.adviceEyebrow')}
+        title={t('pages.adviceTitle')}
+        description={t('pages.adviceText')}
       />
 
       <section className="section">

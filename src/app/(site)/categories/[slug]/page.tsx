@@ -14,6 +14,8 @@ import {
   getBrands,
   type ProductFilters as Filters,
 } from '@/lib/data';
+import { getI18n } from '@/i18n/locale';
+import { tField } from '@/lib/localize';
 import { toCardData } from '@/lib/types';
 import { buildMetadata } from '@/lib/seo';
 import { cn } from '@/lib/utils';
@@ -40,6 +42,10 @@ export default async function CategoryPage({ params, searchParams }: { params: P
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
+  const { locale, t } = await getI18n();
+  const catName = tField(category, locale, 'name', category.name);
+  const catDesc = category.description ? tField(category, locale, 'description', category.description) : undefined;
+
   const page = Math.max(1, Number(sp.page) || 1);
   const categorySlugs = [category.slug, ...category.children.map((c) => c.slug)];
 
@@ -57,19 +63,16 @@ export default async function CategoryPage({ params, searchParams }: { params: P
   ]);
 
   const breadcrumbs = [
-    { label: 'Produits', href: '/produits' },
-    ...(category.parent ? [{ label: category.parent.name, href: `/categories/${category.parent.slug}` }] : []),
-    { label: category.name, href: `/categories/${category.slug}` },
+    { label: t('nav.products'), href: '/produits' },
+    ...(category.parent
+      ? [{ label: tField(category.parent, locale, 'name', category.parent.name), href: `/categories/${category.parent.slug}` }]
+      : []),
+    { label: catName, href: `/categories/${category.slug}` },
   ];
 
   return (
     <>
-      <PageHeader
-        breadcrumbs={breadcrumbs}
-        eyebrow="Catégorie"
-        title={category.name}
-        description={category.description || undefined}
-      >
+      <PageHeader breadcrumbs={breadcrumbs} eyebrow="Catégorie" title={catName} description={catDesc}>
         {category.children.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2">
             {category.children.map((child) => (
@@ -80,7 +83,7 @@ export default async function CategoryPage({ params, searchParams }: { params: P
                   'rounded-full border border-border bg-card px-3.5 py-1.5 text-sm font-medium transition-colors hover:border-primary/40 hover:text-primary',
                 )}
               >
-                {child.name}
+                {tField(child, locale, 'name', child.name)}
               </Link>
             ))}
           </div>

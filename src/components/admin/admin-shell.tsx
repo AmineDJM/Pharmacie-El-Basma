@@ -14,6 +14,7 @@ import {
   Mail,
   Send,
   Settings,
+  Users,
   LogOut,
   ExternalLink,
   Menu,
@@ -34,6 +35,7 @@ const NAV: { label: string; href: string; icon: LucideIcon }[] = [
   { label: 'FAQ', href: '/admin/faq', icon: HelpCircle },
   { label: 'Messages', href: '/admin/messages', icon: Mail },
   { label: 'Newsletter', href: '/admin/newsletter', icon: Send },
+  { label: 'Utilisateurs', href: '/admin/utilisateurs', icon: Users },
   { label: 'Paramètres', href: '/admin/parametres', icon: Settings },
 ];
 

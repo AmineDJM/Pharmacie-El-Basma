@@ -6,9 +6,11 @@ import { ProductCard } from '@/components/product/product-card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { buttonVariants } from '@/components/ui/button';
 import { useStore } from '@/components/providers/store-provider';
+import { useT } from '@/i18n/provider';
 import { storedToCard } from '@/lib/types';
 
 export function FavoritesView() {
+  const t = useT();
   const { favorites, ready } = useStore();
 
   if (!ready) {
@@ -19,11 +21,11 @@ export function FavoritesView() {
     return (
       <EmptyState
         icon={Heart}
-        title="Votre liste de favoris est vide"
-        description="Parcourez notre catalogue et ajoutez vos produits préférés pour les retrouver facilement."
+        title={t('favorites.empty')}
+        description={t('favorites.emptyText')}
       >
         <Link href="/produits" className={buttonVariants()}>
-          Découvrir les produits
+          {t('favorites.discover')}
         </Link>
       </EmptyState>
     );

@@ -12,6 +12,8 @@ import { TrackRecentlyViewed } from '@/components/product/recently-viewed';
 import { SectionHeading } from '@/components/ui/section-heading';
 import { JsonLd } from '@/components/seo/json-ld';
 import { getProductBySlug, getSimilarProducts, getSettings } from '@/lib/data';
+import { getI18n } from '@/i18n/locale';
+import { localize, tField } from '@/lib/localize';
 import { toCardData, cardToStored } from '@/lib/types';
 import { buildMetadata, productSchema, breadcrumbSchema } from '@/lib/seo';
 import { formatPrice, discountPercent, parseLines } from '@/lib/utils';
@@ -31,10 +33,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 const TRUST = [
-  { icon: ShieldCheck, text: 'Produit authentique' },
-  { icon: Stethoscope, text: 'Conseil pharmacien' },
-  { icon: Truck, text: 'Disponibilité rapide' },
-];
+  { icon: ShieldCheck, key: 'authentic' },
+  { icon: Stethoscope, key: 'pharmacistAdvice' },
+  { icon: Truck, key: 'fastAvailability' },
+] as const;
 
 export default async function ProductPage({ params }: { params: Params }) {
   const { slug } = await params;
@@ -46,18 +48,21 @@ export default async function ProductPage({ params }: { params: Params }) {
     getSimilarProducts(product.id, product.categoryId, 4),
   ]);
 
+  const { locale, t } = await getI18n();
+  const lp = localize(product, locale, ['name', 'shortDescription', 'description', 'highlights']);
+  const categoryName = product.category ? tField(product.category, locale, 'name', product.category.name) : null;
   const card = toCardData(product);
   const promo = discountPercent(product.price, product.oldPrice);
-  const highlights = parseLines(product.highlights);
+  const highlights = parseLines(lp.highlights);
 
   return (
     <>
       <div className="container py-6 sm:py-8">
         <Breadcrumbs
           items={[
-            { label: 'Produits', href: '/produits' },
-            ...(product.category ? [{ label: product.category.name, href: `/categories/${product.category.slug}` }] : []),
-            { label: product.name, href: `/produits/${product.slug}` },
+            { label: t('nav.products'), href: '/produits' },
+            ...(product.category ? [{ label: categoryName ?? product.category.name, href: `/categories/${product.category.slug}` }] : []),
+            { label: lp.name, href: `/produits/${product.slug}` },
           ]}
         />
 
@@ -76,10 +81,10 @@ export default async function ProductPage({ params }: { params: Params }) {
               />
             </div>
             <div className="mt-4 grid grid-cols-3 gap-3">
-              {TRUST.map((t) => (
-                <div key={t.text} className="flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-3 text-center">
-                  <t.icon className="h-5 w-5 text-primary" />
-                  <span className="text-xs font-medium text-muted-foreground">{t.text}</span>
+              {TRUST.map((item) => (
+                <div key={item.key} className="flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-3 text-center">
+                  <item.icon className="h-5 w-5 text-primary" />
+                  <span className="text-xs font-medium text-muted-foreground">{t(`product.${item.key}`)}</span>
                 </div>
               ))}
             </div>
@@ -89,24 +94,25 @@ export default async function ProductPage({ params }: { params: Params }) {
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-3">
               <div className="flex flex-wrap items-center gap-2">
-                {product.category && (
-                  <span className="text-sm font-semibold uppercase tracking-wider text-primary">{product.category.name}</span>
+                {categoryName && (
+                  <span className="text-sm font-semibold uppercase tracking-wider text-primary">{categoryName}</span>
                 )}
                 {promo && <Badge variant="promo">−{promo}%</Badge>}
-                {product.isNew && <Badge variant="new">Nouveau</Badge>}
-                {product.isBestSeller && <Badge variant="best">Top vente</Badge>}
+                {product.isNew && <Badge variant="new">{t('card.new')}</Badge>}
+                {product.isBestSeller && <Badge variant="best">{t('card.best')}</Badge>}
+                {product.isBio && <Badge variant="soft">{t('card.bio')}</Badge>}
               </div>
-              <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{product.name}</h1>
-              {product.brand && <p className="text-muted-foreground">par <span className="font-medium text-foreground">{product.brand.name}</span></p>}
+              <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{lp.name}</h1>
+              {product.brand && <p className="text-muted-foreground">{t('product.by')} <span className="font-medium text-foreground">{product.brand.name}</span></p>}
               <div className="flex items-center gap-3">
                 <StarRating rating={product.rating} count={product.reviewCount} size="md" />
                 <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
-                  <BadgeCheck className="h-4 w-4" /> Recommandé
+                  <BadgeCheck className="h-4 w-4" /> {t('product.recommended')}
                 </span>
               </div>
             </div>
 
-            <p className="text-pretty text-lg leading-relaxed text-foreground/90">{product.shortDescription}</p>
+            <p className="text-pretty text-lg leading-relaxed text-foreground/90">{lp.shortDescription}</p>
 
             <div className="flex items-end gap-3 rounded-2xl border border-border bg-secondary/40 p-5">
               <div>
@@ -115,7 +121,7 @@ export default async function ProductPage({ params }: { params: Params }) {
               </div>
               <span className={`mb-1.5 ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${product.inStock ? 'bg-primary-50 text-primary-700 dark:bg-primary-100 dark:text-primary-900' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'}`}>
                 <span className={`h-2 w-2 rounded-full ${product.inStock ? 'bg-primary' : 'bg-amber-500'}`} />
-                {product.inStock ? 'Disponible' : 'Sur commande'}
+                {product.inStock ? t('product.available') : t('product.onOrder')}
               </span>
             </div>
 
@@ -137,15 +143,13 @@ export default async function ProductPage({ params }: { params: Params }) {
         {/* Description */}
         <div className="mt-14 grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <h2 className="mb-4 font-display text-2xl font-bold text-foreground">Description</h2>
-            <Markdown content={product.description} />
+            <h2 className="mb-4 font-display text-2xl font-bold text-foreground">{t('product.description')}</h2>
+            <Markdown content={lp.description} />
           </div>
           <aside className="space-y-4">
             <div className="rounded-2xl border border-border bg-card p-6">
-              <h3 className="font-display text-lg font-semibold">Besoin d’un conseil ?</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Nos pharmaciens vous accompagnent pour choisir le produit le mieux adapté à vos besoins.
-              </p>
+              <h3 className="font-display text-lg font-semibold">{t('product.adviceTitle')}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{t('product.adviceText')}</p>
               <ProductActions product={card} whatsapp={settings.whatsapp} phone={settings.phone} />
             </div>
           </aside>
@@ -156,7 +160,7 @@ export default async function ProductPage({ params }: { params: Params }) {
       {similar.length > 0 && (
         <section className="section">
           <div className="container">
-            <SectionHeading eyebrow="Vous aimerez aussi" title="Produits similaires" align="left" className="mb-8" />
+            <SectionHeading eyebrow={t('product.similarEyebrow')} title={t('product.similar')} align="left" className="mb-8" />
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {similar.map((p) => (
                 <ProductCard key={p.id} product={toCardData(p)} />

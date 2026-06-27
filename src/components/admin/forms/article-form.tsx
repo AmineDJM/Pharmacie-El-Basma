@@ -4,6 +4,7 @@ import { useActionState } from 'react';
 import { saveArticle } from '@/lib/actions/admin';
 import { Field, Input, Textarea, Select, Toggle, AdminCard, FormError, inputClass } from '@/components/admin/ui';
 import { SubmitButton, CancelLink } from '@/components/admin/form-actions';
+import { TranslationFields } from '@/components/admin/translation-fields';
 import { ACCENT_KEYS } from '@/lib/visuals';
 import type { FormState } from '@/lib/actions/public';
 
@@ -23,6 +24,7 @@ interface ArticleInput {
   featured: boolean;
   metaTitle: string | null;
   metaDescription: string | null;
+  translations?: unknown;
 }
 
 export function ArticleForm({ article }: { article?: ArticleInput }) {
@@ -88,6 +90,17 @@ export function ArticleForm({ article }: { article?: ArticleInput }) {
             <Textarea name="metaDescription" rows={2} defaultValue={article?.metaDescription ?? ''} />
           </Field>
         </div>
+      </AdminCard>
+
+      <AdminCard title="Traductions (optionnel)" description="Versions anglaise et arabe. Laissez vide pour afficher le français.">
+        <TranslationFields
+          value={article?.translations}
+          fields={[
+            { name: 'title', label: 'Titre' },
+            { name: 'excerpt', label: 'Extrait', textarea: true },
+            { name: 'content', label: 'Contenu', textarea: true, rows: 8 },
+          ]}
+        />
       </AdminCard>
 
       <FormError message={state.message} />

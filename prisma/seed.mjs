@@ -5,6 +5,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { articles } from './seed-articles.mjs';
 import { faqs, reviews } from './seed-community.mjs';
+import { categoryTranslations, productTranslations, articleTranslations } from './seed-translations.mjs';
 
 const prisma = new PrismaClient();
 
@@ -213,6 +214,18 @@ const defaultHighlights = (brandName) =>
   ].join('\n');
 
 // Pseudo-aléatoire déterministe (reproductible entre deux seeds).
+// Produits mis en avant dans la rubrique « Bio & Naturel ».
+const BIO_SLUGS = new Set([
+  'huile-essentielle-lavande-vraie-10ml',
+  'tisane-digestion-detente-20-sachets',
+  'vergetures-creme-prevention-maman-150ml',
+  'shampoing-doux-frequence-400ml',
+  'masque-nutritif-cheveux-secs-200ml',
+  'probiotiques-flore-intestinale-30-gelules',
+  'omega-3-1000mg-60-capsules',
+  'magnesium-marin-b6-60-gelules',
+]);
+
 let seedN = 7;
 const rand = () => {
   seedN = (seedN * 1103515245 + 12345) & 0x7fffffff;
@@ -260,11 +273,11 @@ async function main() {
       where: { slug },
       update: {
         name: cat.name, icon: cat.icon, accent: cat.accent, featured: cat.featured,
-        description: cat.description, order: catOrder,
+        description: cat.description, order: catOrder, translations: categoryTranslations[slug] || undefined,
       },
       create: {
         name: cat.name, slug, icon: cat.icon, accent: cat.accent, featured: cat.featured,
-        description: cat.description, order: catOrder,
+        description: cat.description, order: catOrder, translations: categoryTranslations[slug] || undefined,
       },
     });
     catOrder++;
@@ -274,8 +287,8 @@ async function main() {
       subSlugByName[childSlug] = childSlug;
       await prisma.category.upsert({
         where: { slug: childSlug },
-        update: { name: childName, accent: cat.accent, parentId: parent.id, order: childOrder },
-        create: { name: childName, slug: childSlug, accent: cat.accent, parentId: parent.id, order: childOrder },
+        update: { name: childName, accent: cat.accent, parentId: parent.id, order: childOrder, translations: categoryTranslations[childSlug] || undefined },
+        create: { name: childName, slug: childSlug, accent: cat.accent, parentId: parent.id, order: childOrder, translations: categoryTranslations[childSlug] || undefined },
       });
       childOrder++;
     }
@@ -325,6 +338,7 @@ async function main() {
       isFeatured: p.badges.includes('featured'),
       isNew: p.badges.includes('new'),
       isBestSeller: p.badges.includes('best'),
+      isBio: BIO_SLUGS.has(slug) || p.badges.includes('bio'),
       rating: parseFloat(rating),
       reviewCount,
       highlights: defaultHighlights(brandName),
@@ -332,6 +346,7 @@ async function main() {
       brandId,
       metaTitle: `${p.name} — Parapharmacie El Basma Boufarik`,
       metaDescription: `${p.short} Disponible à la Parapharmacie El Basma, Boufarik (Blida). Conseil pharmacien & disponibilité sur WhatsApp.`,
+      translations: productTranslations[slug] || undefined,
     };
 
     await prisma.product.upsert({ where: { slug }, update: data, create: { slug, ...data } });
@@ -343,8 +358,8 @@ async function main() {
   for (const a of articles) {
     await prisma.article.upsert({
       where: { slug: a.slug },
-      update: { ...a },
-      create: { ...a },
+      update: { ...a, translations: articleTranslations[a.slug] || undefined },
+      create: { ...a, translations: articleTranslations[a.slug] || undefined },
     });
   }
   console.log(`   ✓ ${articles.length} articles (Conseils santé)`);
