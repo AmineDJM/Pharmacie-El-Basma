@@ -95,6 +95,7 @@ model Product {
   price       Float
   oldPrice    Float?
   imageUrl    String?
+  images      String[] @default([])
   inStock     Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   isNew       Boolean  @default(false)

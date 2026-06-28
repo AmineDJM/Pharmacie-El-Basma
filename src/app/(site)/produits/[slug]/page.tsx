@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Truck, ShieldCheck, Stethoscope, BadgeCheck, Check } from 'lucide-react';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
-import { ProductVisual } from '@/components/ui/product-visual';
+import { ProductGallery } from '@/components/product/product-gallery';
 import { StarRating } from '@/components/ui/star-rating';
 import { Badge } from '@/components/ui/badge';
 import { Markdown } from '@/components/ui/markdown';
@@ -69,17 +69,12 @@ export default async function ProductPage({ params }: { params: Params }) {
         <div className="mt-7 grid gap-8 lg:grid-cols-2 lg:gap-12">
           {/* Visual */}
           <div className="lg:sticky lg:top-28 lg:self-start">
-            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-card">
-              <ProductVisual
-                name={product.name}
-                accent={product.category?.accent}
-                imageUrl={product.imageUrl}
-                brandName={product.brand?.name}
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="aspect-square w-full"
-              />
-            </div>
+            <ProductGallery
+              name={lp.name}
+              accent={product.category?.accent}
+              images={product.images?.length ? product.images : product.imageUrl ? [product.imageUrl] : []}
+              brandName={product.brand?.name}
+            />
             <div className="mt-4 grid grid-cols-3 gap-3">
               {TRUST.map((item) => (
                 <div key={item.key} className="flex flex-col items-center gap-1.5 rounded-2xl border border-border bg-card p-3 text-center">

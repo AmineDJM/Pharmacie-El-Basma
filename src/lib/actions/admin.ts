@@ -39,6 +39,16 @@ const optNum = (fd: FormData, key: string) => {
 };
 const optStr = (fd: FormData, key: string) => str(fd, key) || null;
 
+/** Parse a JSON array of image URLs submitted by the gallery uploader. */
+function readImages(fd: FormData, key: string): string[] {
+  try {
+    const parsed = JSON.parse(str(fd, key) || '[]');
+    return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === 'string' && x.length > 0) : [];
+  } catch {
+    return [];
+  }
+}
+
 /** Build a translations JSON ({ en:{...}, ar:{...} }) from tr_<locale>_<field> inputs. */
 function readTranslations(formData: FormData, fields: string[]): Prisma.InputJsonValue | undefined {
   const out: Record<string, Record<string, string>> = {};
@@ -110,6 +120,8 @@ export async function saveProduct(_prev: FormState, formData: FormData): Promise
 
   const slug = await uniqueSlug((s) => prisma.product.findUnique({ where: { slug: s } }), str(formData, 'slug') || name, id ?? undefined);
 
+  const images = readImages(formData, 'images');
+
   const data = {
     name,
     slug,
@@ -117,7 +129,8 @@ export async function saveProduct(_prev: FormState, formData: FormData): Promise
     description: str(formData, 'description') || str(formData, 'shortDescription') || name,
     price: num(formData, 'price'),
     oldPrice: optNum(formData, 'oldPrice'),
-    imageUrl: optStr(formData, 'imageUrl'),
+    images,
+    imageUrl: images[0] ?? null,
     inStock: bool(formData, 'inStock'),
     isFeatured: bool(formData, 'isFeatured'),
     isNew: bool(formData, 'isNew'),

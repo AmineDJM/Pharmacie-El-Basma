@@ -4,7 +4,7 @@ import { useActionState } from 'react';
 import { saveProduct } from '@/lib/actions/admin';
 import { Field, Input, Textarea, Select, Toggle, AdminCard, FormError, inputClass } from '@/components/admin/ui';
 import { SubmitButton, CancelLink } from '@/components/admin/form-actions';
-import { ImageUpload } from '@/components/admin/image-upload';
+import { GalleryUpload } from '@/components/admin/gallery-upload';
 import { TranslationFields } from '@/components/admin/translation-fields';
 import { ACCENT_KEYS } from '@/lib/visuals';
 import type { FormState } from '@/lib/actions/public';
@@ -20,6 +20,7 @@ interface ProductInput {
   price: number;
   oldPrice: number | null;
   imageUrl: string | null;
+  images?: string[];
   inStock: boolean;
   isFeatured: boolean;
   isNew: boolean;
@@ -96,7 +97,11 @@ export function ProductForm({
             <Input name="reviewCount" type="number" min="0" defaultValue={product?.reviewCount ?? 0} />
           </Field>
           <div className="sm:col-span-3">
-            <ImageUpload name="imageUrl" defaultValue={product?.imageUrl} label="Image du produit" hint="Optionnel : sinon un visuel élégant est généré automatiquement. Redimensionnement & optimisation automatiques." />
+            <span className="mb-1.5 block text-sm font-medium text-foreground">Images du produit</span>
+            <GalleryUpload
+              name="images"
+              defaultValue={product?.images ?? (product?.imageUrl ? [product.imageUrl] : [])}
+            />
           </div>
         </div>
       </AdminCard>
