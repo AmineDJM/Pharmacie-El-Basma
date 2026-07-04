@@ -23,6 +23,11 @@ export interface StoredProduct {
   rating: number;
 }
 
+/** A cart line: a product snapshot plus the ordered quantity. */
+export interface CartItem extends StoredProduct {
+  quantity: number;
+}
+
 /** Serializable product shape passed to the (client) product card. */
 export interface ProductCardData {
   id: string;

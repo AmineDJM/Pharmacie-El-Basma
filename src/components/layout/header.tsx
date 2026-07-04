@@ -8,6 +8,7 @@ import {
   X,
   Heart,
   Scale,
+  ShoppingBag,
   ChevronDown,
   Phone,
   MessageCircle,
@@ -35,7 +36,7 @@ interface HeaderProps {
 export function Header({ categories, brands, settings }: HeaderProps) {
   const pathname = usePathname();
   const t = useT();
-  const { favorites, compare, ready } = useStore();
+  const { favorites, compare, cartCount, ready } = useStore();
   const [megaOpen, setMegaOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -167,6 +168,14 @@ export function Header({ categories, brands, settings }: HeaderProps) {
             >
               <Scale className="h-[1.15rem] w-[1.15rem]" />
               {ready && compare.length > 0 && <CountBadge n={compare.length} />}
+            </Link>
+            <Link
+              href="/panier"
+              aria-label={t('nav.cart')}
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-foreground transition-colors hover:bg-accent"
+            >
+              <ShoppingBag className="h-[1.15rem] w-[1.15rem]" />
+              {ready && cartCount > 0 && <CountBadge n={cartCount} />}
             </Link>
             <LanguageSwitcher />
             <ThemeToggle className="hidden sm:inline-flex" />
@@ -318,6 +327,9 @@ export function Header({ categories, brands, settings }: HeaderProps) {
             </nav>
 
             <div className="mt-auto space-y-3 border-t border-border p-4">
+              <Link href="/panier" className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground">
+                <ShoppingBag className="h-4 w-4" /> {t('nav.cart')} {ready && cartCount > 0 && `(${cartCount})`}
+              </Link>
               <div className="flex gap-2">
                 <Link href="/favoris" className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border py-2.5 text-sm font-medium">
                   <Heart className="h-4 w-4" /> {t('nav.favorites')} {ready && favorites.length > 0 && `(${favorites.length})`}

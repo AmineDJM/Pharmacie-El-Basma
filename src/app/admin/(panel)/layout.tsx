@@ -17,14 +17,18 @@ export default async function PanelLayout({ children }: { children: React.ReactN
   if (!user) redirect('/admin/login');
 
   let unread = 0;
+  let pendingOrders = 0;
   try {
-    unread = await prisma.contactMessage.count({ where: { read: false } });
+    [unread, pendingOrders] = await Promise.all([
+      prisma.contactMessage.count({ where: { read: false } }),
+      prisma.order.count({ where: { status: 'pending' } }),
+    ]);
   } catch {
     /* db unavailable */
   }
 
   return (
-    <AdminShell user={{ name: user.name, email: user.email }} unread={unread} logout={logoutAction}>
+    <AdminShell user={{ name: user.name, email: user.email }} unread={unread} pendingOrders={pendingOrders} logout={logoutAction}>
       {children}
     </AdminShell>
   );

@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { MessageCircle, ArrowUp, Scale, X } from 'lucide-react';
+import { MessageCircle, ArrowUp, Scale, X, ShoppingBag } from 'lucide-react';
 import { useStore } from '@/components/providers/store-provider';
 import { whatsappLink, cn } from '@/lib/utils';
 
 export function FloatingActions({ phone, whatsapp }: { phone: string; whatsapp: string }) {
   void phone;
-  const { compare, clearCompare, ready } = useStore();
+  const { compare, clearCompare, cartCount, ready } = useStore();
   const [showTop, setShowTop] = useState(false);
 
   useEffect(() => {
@@ -52,6 +52,19 @@ export function FloatingActions({ phone, whatsapp }: { phone: string; whatsapp: 
         >
           <ArrowUp className="h-5 w-5" />
         </button>
+
+        {ready && cartCount > 0 && (
+          <Link
+            href="/panier"
+            aria-label="Voir mon panier"
+            className="relative inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-lift transition-transform hover:scale-105"
+          >
+            <ShoppingBag className="h-5 w-5" />
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[0.65rem] font-bold text-primary-foreground">
+              {cartCount}
+            </span>
+          </Link>
+        )}
 
         <a
           href={whatsappLink(whatsapp, 'Bonjour, je vous contacte depuis le site de la Parapharmacie El Basma.')}

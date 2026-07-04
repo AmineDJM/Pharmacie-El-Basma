@@ -6,6 +6,7 @@ import { ProductVisual } from '@/components/ui/product-visual';
 import { Badge } from '@/components/ui/badge';
 import { StarRating } from '@/components/ui/star-rating';
 import { useStore } from '@/components/providers/store-provider';
+import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 import { useLocale, useT } from '@/i18n/provider';
 import { tField } from '@/lib/localize';
 import { cn, formatPrice, discountPercent } from '@/lib/utils';
@@ -84,6 +85,7 @@ export function ProductCard({
           >
             {cmp ? <Check className="h-[1.05rem] w-[1.05rem]" /> : <Scale className="h-[1.05rem] w-[1.05rem]" />}
           </button>
+          <AddToCartButton product={product} variant="icon" />
         </div>
       </div>
 
@@ -113,12 +115,7 @@ export function ProductCard({
             )}
             <span className="text-base font-bold text-foreground">{formatPrice(product.price)}</span>
           </div>
-          <Link
-            href={`/produits/${product.slug}`}
-            className="rounded-lg bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
-          >
-            {t('common.details')}
-          </Link>
+          <AddToCartButton product={product} variant="card" />
         </div>
       </div>
     </article>

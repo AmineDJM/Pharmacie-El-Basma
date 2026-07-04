@@ -162,6 +162,30 @@ export async function deleteProduct(formData: FormData) {
 }
 
 // ---------------------------------------------------------------------------
+// Orders
+// ---------------------------------------------------------------------------
+
+const ORDER_STATUSES = ['pending', 'confirmed', 'shipped', 'cancelled'] as const;
+
+export async function updateOrderStatus(formData: FormData) {
+  await requireAuth();
+  const id = str(formData, 'id');
+  const status = str(formData, 'status');
+  if (!id || !(ORDER_STATUSES as readonly string[]).includes(status)) return;
+  await prisma.order.update({ where: { id }, data: { status } });
+  revalidatePath('/admin/commandes');
+  revalidatePath(`/admin/commandes/${id}`);
+}
+
+export async function deleteOrder(formData: FormData) {
+  await requireAuth();
+  const id = str(formData, 'id');
+  if (id) await prisma.order.delete({ where: { id } });
+  revalidatePath('/admin/commandes');
+  redirect('/admin/commandes');
+}
+
+// ---------------------------------------------------------------------------
 // Categories
 // ---------------------------------------------------------------------------
 

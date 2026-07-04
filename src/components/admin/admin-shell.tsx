@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
+  ShoppingCart,
   Package,
   FolderTree,
   Tag,
@@ -27,6 +28,7 @@ import { cn } from '@/lib/utils';
 
 const NAV: { label: string; href: string; icon: LucideIcon }[] = [
   { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
+  { label: 'Commandes', href: '/admin/commandes', icon: ShoppingCart },
   { label: 'Produits', href: '/admin/produits', icon: Package },
   { label: 'Catégories', href: '/admin/categories', icon: FolderTree },
   { label: 'Marques', href: '/admin/marques', icon: Tag },
@@ -42,11 +44,13 @@ const NAV: { label: string; href: string; icon: LucideIcon }[] = [
 export function AdminShell({
   user,
   unread,
+  pendingOrders,
   logout,
   children,
 }: {
   user: { name: string; email: string };
   unread: number;
+  pendingOrders: number;
   logout: () => Promise<void>;
   children: React.ReactNode;
 }) {
@@ -54,11 +58,14 @@ export function AdminShell({
   const [open, setOpen] = useState(false);
 
   const isActive = (href: string) => (href === '/admin' ? pathname === '/admin' : pathname.startsWith(href));
+  const badgeFor = (href: string) =>
+    href === '/admin/messages' ? unread : href === '/admin/commandes' ? pendingOrders : 0;
 
   const NavLinks = () => (
     <nav className="flex flex-col gap-1">
       {NAV.map((item) => {
         const active = isActive(item.href);
+        const badge = badgeFor(item.href);
         return (
           <Link
             key={item.href}
@@ -73,9 +80,9 @@ export function AdminShell({
               <item.icon className="h-[1.15rem] w-[1.15rem]" />
               {item.label}
             </span>
-            {item.href === '/admin/messages' && unread > 0 && (
+            {badge > 0 && (
               <span className={cn('rounded-full px-1.5 py-0.5 text-[0.65rem] font-bold', active ? 'bg-white/20' : 'bg-primary text-primary-foreground')}>
-                {unread}
+                {badge}
               </span>
             )}
           </Link>

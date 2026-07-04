@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Heart, Scale, MessageCircle, Phone, Check } from 'lucide-react';
 import { useStore } from '@/components/providers/store-provider';
+import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 import { useT } from '@/i18n/provider';
 import { cn, whatsappLink, telLink } from '@/lib/utils';
 import { cardToStored, type ProductCardData } from '@/lib/types';
@@ -28,6 +29,8 @@ export function ProductActions({
 
   return (
     <div className="flex flex-col gap-3">
+      <AddToCartButton product={product} variant="detail" />
+
       <div className="flex flex-col gap-2.5 sm:flex-row">
         <a
           href={whatsappLink(whatsapp, waMessage)}

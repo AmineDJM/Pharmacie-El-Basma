@@ -111,6 +111,7 @@ model Product {
   metaTitle       String?
   metaDescription String?
   translations Json?
+  orderItems  OrderItem[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -174,6 +175,54 @@ model Faq {
   translations Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Commandes
+// ---------------------------------------------------------------------------
+
+// Statuts : "pending" (reçue) → "confirmed" (confirmée) → "shipped" (envoyée)
+// ou "cancelled" (annulée). Le pharmacien pilote tout depuis l'admin.
+model Order {
+  id           String      @id @default(cuid())
+  orderNumber  String      @unique
+  status       String      @default("pending")
+  customerName String
+  phone        String
+  email        String?
+  wilaya       String
+  city         String
+  address      String
+  notes        String?
+  subtotal     Float       @default(0)
+  deliveryFee  Float       @default(0)
+  total        Float       @default(0)
+  itemCount    Int         @default(0)
+  items        OrderItem[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Ligne de commande — instantané du produit au moment de l'achat (le nom et le
+// prix restent figés même si la fiche produit change ou est supprimée ensuite).
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name      String
+  slug      String?
+  imageUrl  String?
+  price     Float
+  quantity  Int      @default(1)
+  lineTotal Float    @default(0)
+
+  @@index([orderId])
+  @@index([productId])
 }
 
 // ---------------------------------------------------------------------------
