@@ -217,7 +217,7 @@ const fr = {
     eyebrow: 'Votre sélection',
     title: 'Mon panier',
     subtitle: 'Vérifiez vos articles puis passez commande en quelques clics.',
-    add: 'Ajouter au panier',
+    add: 'Acheter',
     added: 'Ajouté ✓',
     empty: 'Votre panier est vide',
     emptyText: 'Parcourez notre catalogue et ajoutez les produits qui vous intéressent pour passer commande.',

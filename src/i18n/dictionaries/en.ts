@@ -218,7 +218,7 @@ const en: Dictionary = {
     eyebrow: 'Your selection',
     title: 'My cart',
     subtitle: 'Review your items, then check out in just a few clicks.',
-    add: 'Add to cart',
+    add: 'Buy',
     added: 'Added ✓',
     empty: 'Your cart is empty',
     emptyText: 'Browse our catalogue and add the products you’re interested in to place an order.',
