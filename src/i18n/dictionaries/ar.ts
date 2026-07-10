@@ -235,6 +235,10 @@ const ar: Dictionary = {
     increase: 'زيادة الكمية',
     decrease: 'إنقاص الكمية',
     summary: 'الملخّص',
+    shippingTitle: 'طريقة التوصيل',
+    free: 'مجاني',
+    selectShipping: 'اختر طريقة التوصيل',
+    noShipping: 'لا توجد طريقة توصيل متاحة حالياً.',
   },
   checkout: {
     eyebrow: 'الطلب',

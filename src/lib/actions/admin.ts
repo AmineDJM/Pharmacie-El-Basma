@@ -186,6 +186,40 @@ export async function deleteOrder(formData: FormData) {
 }
 
 // ---------------------------------------------------------------------------
+// Delivery options (modes de livraison)
+// ---------------------------------------------------------------------------
+
+export async function saveDeliveryOption(_prev: FormState, formData: FormData): Promise<FormState> {
+  await requireAuth();
+  const id = optStr(formData, 'id');
+  const name = str(formData, 'name');
+  if (!name) return { ok: false, message: 'Le nom du mode de livraison est obligatoire.' };
+
+  const data = {
+    name,
+    description: optStr(formData, 'description'),
+    price: Math.max(0, num(formData, 'price')),
+    groupName: optStr(formData, 'groupName'),
+    order: int(formData, 'order'),
+    active: bool(formData, 'active'),
+  };
+
+  if (id) await prisma.deliveryOption.update({ where: { id }, data });
+  else await prisma.deliveryOption.create({ data });
+
+  revalidateAll(TAGS.delivery);
+  redirect('/admin/livraison');
+}
+
+export async function deleteDeliveryOption(formData: FormData) {
+  await requireAuth();
+  const id = str(formData, 'id');
+  if (id) await prisma.deliveryOption.delete({ where: { id } });
+  revalidateAll(TAGS.delivery);
+  revalidatePath('/admin/livraison');
+}
+
+// ---------------------------------------------------------------------------
 // Categories
 // ---------------------------------------------------------------------------
 

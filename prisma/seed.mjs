@@ -388,6 +388,34 @@ async function main() {
   }
   console.log(`   ✓ ${reviews.length} avis clients`);
 
+  // --- Modes de livraison --------------------------------------------------
+  // Seulement si aucun mode n'existe : l'admin gère ensuite librement, sans
+  // qu'un redéploiement n'écrase sa configuration.
+  const deliveryCount = await prisma.deliveryOption.count();
+  if (deliveryCount === 0) {
+    const deliveryOptions = [
+      { groupName: 'DHD', name: 'Livraison à domicile DHD', price: 400 },
+      { groupName: 'DHD', name: 'Point Relais DHD', price: 200 },
+      { groupName: 'Yalidine', name: 'Livraison à domicile Express Yalidine', price: 600 },
+      { groupName: 'Yalidine', name: 'Point relais Yalidine Alger centre', price: 400 },
+      { groupName: 'Yalidine', name: 'Point relais Yalidine Aïn Benian', price: 400 },
+      { groupName: 'Yalidine', name: 'Point relais Yalidine Birkhadem', price: 400 },
+      { groupName: 'Yalidine', name: 'Point relais Yalidine Bordj El Kiffan', price: 400 },
+      { groupName: 'Yalidine', name: 'Point relais Yalidine Cheraga', price: 400 },
+      { groupName: 'Yalidine', name: 'Point relais Yalidine Draria', price: 400 },
+      { groupName: 'Yalidine', name: 'Point relais Yalidine Reghaïa', price: 400 },
+      { groupName: 'Yalidine', name: 'Point relais Yalidine Zeralda', price: 400 },
+      { groupName: 'Yalidine', name: 'Point relais Yalidine Hussein Dey', price: 400 },
+      { groupName: 'Retrait', name: 'Retrait en magasin (Boufarik)', price: 0, description: 'Gratuit — récupérez votre commande à la parapharmacie.' },
+    ];
+    await prisma.deliveryOption.createMany({
+      data: deliveryOptions.map((o, i) => ({ ...o, order: i })),
+    });
+    console.log(`   ✓ ${deliveryOptions.length} modes de livraison`);
+  } else {
+    console.log(`   • ${deliveryCount} modes de livraison déjà présents (inchangés)`);
+  }
+
   console.log('✅ Seed terminé.');
 }
 

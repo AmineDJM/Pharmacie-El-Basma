@@ -234,6 +234,10 @@ const fr = {
     increase: 'Augmenter la quantité',
     decrease: 'Diminuer la quantité',
     summary: 'Récapitulatif',
+    shippingTitle: 'Mode de livraison',
+    free: 'Gratuit',
+    selectShipping: 'Choisissez un mode de livraison',
+    noShipping: 'Aucun mode de livraison disponible pour le moment.',
   },
   checkout: {
     eyebrow: 'Commande',

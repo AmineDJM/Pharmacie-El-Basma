@@ -20,6 +20,7 @@ export const TAGS = {
   reviews: 'reviews',
   faqs: 'faqs',
   settings: 'settings',
+  delivery: 'delivery',
 } as const;
 
 async function safe<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
@@ -468,4 +469,23 @@ export const getFaqs = unstable_cache(
     ),
   ['faqs'],
   { tags: [TAGS.faqs], revalidate: 300 },
+);
+
+// ---------------------------------------------------------------------------
+// Modes de livraison
+// ---------------------------------------------------------------------------
+
+export const getDeliveryOptions = unstable_cache(
+  async () =>
+    safe(
+      () =>
+        prisma.deliveryOption.findMany({
+          where: { active: true },
+          orderBy: [{ order: 'asc' }, { price: 'asc' }],
+          select: { id: true, name: true, description: true, price: true, groupName: true },
+        }),
+      [],
+    ),
+  ['delivery-options'],
+  { tags: [TAGS.delivery], revalidate: 300 },
 );

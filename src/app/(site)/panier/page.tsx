@@ -1,5 +1,6 @@
 import { PageHeader } from '@/components/layout/page-header';
 import { CartView } from '@/components/cart/cart-view';
+import { getDeliveryOptions } from '@/lib/data';
 import { getI18n } from '@/i18n/locale';
 import { buildMetadata } from '@/lib/seo';
 
@@ -11,7 +12,7 @@ export const metadata = buildMetadata({
 });
 
 export default async function PanierPage() {
-  const { t } = await getI18n();
+  const [{ t }, deliveryOptions] = await Promise.all([getI18n(), getDeliveryOptions()]);
   return (
     <>
       <PageHeader
@@ -22,7 +23,7 @@ export default async function PanierPage() {
       />
       <section className="section">
         <div className="container">
-          <CartView />
+          <CartView deliveryOptions={deliveryOptions} />
         </div>
       </section>
     </>

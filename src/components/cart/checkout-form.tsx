@@ -3,11 +3,13 @@
 import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
-import { CheckCircle2, Loader2, ShoppingBag, Lock, MessageCircle, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Loader2, ShoppingBag, Lock, MessageCircle, ArrowRight, Truck } from 'lucide-react';
 import { placeOrder, type FormState } from '@/lib/actions/public';
 import { useStore } from '@/components/providers/store-provider';
+import { DeliveryPicker, resolveDelivery } from '@/components/cart/delivery-picker';
 import { useT } from '@/i18n/provider';
 import { cn, formatPrice, whatsappLink, telLink } from '@/lib/utils';
+import type { DeliveryOptionData } from '@/lib/types';
 
 const initial: FormState = { ok: false, message: '' };
 
@@ -54,20 +56,33 @@ function LabeledField({
   );
 }
 
-export function CheckoutForm({ whatsapp, phone }: { whatsapp: string; phone: string }) {
+export function CheckoutForm({
+  whatsapp,
+  phone,
+  deliveryOptions,
+}: {
+  whatsapp: string;
+  phone: string;
+  deliveryOptions: DeliveryOptionData[];
+}) {
   const t = useT();
-  const { cart, cartTotal, cartCount, clearCart, ready } = useStore();
+  const { cart, cartTotal, cartCount, clearCart, deliveryOptionId, ready } = useStore();
   const [state, formAction] = useActionState(placeOrder, initial);
   const [confirmed, setConfirmed] = useState<{ orderNumber: string; summary: string } | null>(null);
+
+  const shipping = resolveDelivery(deliveryOptions, deliveryOptionId);
+  const fee = shipping?.price ?? 0;
+  const grandTotal = cartTotal + fee;
 
   // On success: snapshot the order for the confirmation screen, then empty the cart.
   useEffect(() => {
     if (state.ok && state.orderNumber && !confirmed) {
-      const summary = cart.map((i) => `• ${i.name} × ${i.quantity} — ${formatPrice(i.price * i.quantity)}`).join('\n');
-      setConfirmed({ orderNumber: state.orderNumber, summary });
+      const lines = cart.map((i) => `• ${i.name} × ${i.quantity} — ${formatPrice(i.price * i.quantity)}`);
+      if (shipping) lines.push(`${t('cart.delivery')} : ${shipping.name} — ${fee === 0 ? t('cart.free') : formatPrice(fee)}`);
+      setConfirmed({ orderNumber: state.orderNumber, summary: lines.join('\n') });
       clearCart();
     }
-  }, [state.ok, state.orderNumber, confirmed, cart, clearCart]);
+  }, [state.ok, state.orderNumber, confirmed, cart, clearCart, shipping, fee, t]);
 
   // --- Confirmation ---------------------------------------------------------
   if (confirmed) {
@@ -131,6 +146,7 @@ export function CheckoutForm({ whatsapp, phone }: { whatsapp: string; phone: str
   return (
     <form action={formAction} className="grid gap-8 lg:grid-cols-3">
       <input type="hidden" name="items" value={itemsPayload} />
+      <input type="hidden" name="deliveryOptionId" value={deliveryOptionId ?? ''} />
       {/* Honeypot */}
       <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
 
@@ -185,6 +201,15 @@ export function CheckoutForm({ whatsapp, phone }: { whatsapp: string; phone: str
           </div>
         </fieldset>
 
+        <fieldset className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+          <legend className="flex items-center gap-2 px-1 font-display text-lg font-semibold text-foreground">
+            <Truck className="h-5 w-5 text-primary" /> {t('cart.shippingTitle')}
+          </legend>
+          <div className="mt-3">
+            <DeliveryPicker options={deliveryOptions} />
+          </div>
+        </fieldset>
+
         {!state.ok && state.message && (
           <p className="rounded-lg bg-rose-50 px-4 py-2.5 text-sm text-rose-700 dark:bg-rose-950/40">{state.message}</p>
         )}
@@ -212,14 +237,23 @@ export function CheckoutForm({ whatsapp, phone }: { whatsapp: string; phone: str
               <span className="text-muted-foreground">{t('cart.subtotal')} ({cartCount})</span>
               <span className="font-medium text-foreground tabular-nums">{formatPrice(cartTotal)}</span>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between gap-3">
               <span className="text-muted-foreground">{t('cart.delivery')}</span>
-              <span className="text-xs font-medium text-muted-foreground">{t('cart.deliveryNote')}</span>
+              <span className="text-right">
+                {shipping ? (
+                  <>
+                    <span className="font-medium text-foreground tabular-nums">{fee === 0 ? t('cart.free') : formatPrice(fee)}</span>
+                    <span className="block text-xs text-muted-foreground">{shipping.name}</span>
+                  </>
+                ) : (
+                  <span className="text-xs font-medium text-muted-foreground">{t('cart.selectShipping')}</span>
+                )}
+              </span>
             </div>
           </div>
           <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
             <span className="font-semibold text-foreground">{t('cart.total')}</span>
-            <span className="text-xl font-bold text-foreground tabular-nums">{formatPrice(cartTotal)}</span>
+            <span className="text-xl font-bold text-foreground tabular-nums">{formatPrice(grandTotal)}</span>
           </div>
 
           <div className="mt-5">

@@ -1,6 +1,6 @@
 import { PageHeader } from '@/components/layout/page-header';
 import { CheckoutForm } from '@/components/cart/checkout-form';
-import { getSettings } from '@/lib/data';
+import { getSettings, getDeliveryOptions } from '@/lib/data';
 import { getI18n } from '@/i18n/locale';
 import { buildMetadata } from '@/lib/seo';
 
@@ -12,7 +12,7 @@ export const metadata = buildMetadata({
 });
 
 export default async function CommanderPage() {
-  const [settings, { t }] = await Promise.all([getSettings(), getI18n()]);
+  const [settings, { t }, deliveryOptions] = await Promise.all([getSettings(), getI18n(), getDeliveryOptions()]);
   return (
     <>
       <PageHeader
@@ -26,7 +26,7 @@ export default async function CommanderPage() {
       />
       <section className="section">
         <div className="container">
-          <CheckoutForm whatsapp={settings.whatsapp} phone={settings.phone} />
+          <CheckoutForm whatsapp={settings.whatsapp} phone={settings.phone} deliveryOptions={deliveryOptions} />
         </div>
       </section>
     </>

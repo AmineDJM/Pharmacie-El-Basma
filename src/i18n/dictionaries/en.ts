@@ -235,6 +235,10 @@ const en: Dictionary = {
     increase: 'Increase quantity',
     decrease: 'Decrease quantity',
     summary: 'Summary',
+    shippingTitle: 'Delivery method',
+    free: 'Free',
+    selectShipping: 'Choose a delivery method',
+    noShipping: 'No delivery method available at the moment.',
   },
   checkout: {
     eyebrow: 'Order',

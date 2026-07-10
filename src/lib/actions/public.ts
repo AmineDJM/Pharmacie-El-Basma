@@ -152,8 +152,23 @@ export async function placeOrder(_prev: FormState, formData: FormData): Promise<
     return { ok: false, message: 'Votre panier est vide. Ajoutez au moins un produit avant de commander.' };
   }
   const submitted = itemsParse.data;
+  const deliveryOptionId = String(formData.get('deliveryOptionId') || '').trim();
 
   try {
+    // Resolve the delivery method from the DB (authoritative price). If the
+    // pharmacy has configured delivery options, one must be selected.
+    let deliveryMethod: string | null = null;
+    let deliveryFee = 0;
+    const activeOptions = await prisma.deliveryOption.findMany({ where: { active: true } });
+    if (activeOptions.length > 0) {
+      const chosen = activeOptions.find((o) => o.id === deliveryOptionId);
+      if (!chosen) {
+        return { ok: false, message: 'Veuillez choisir un mode de livraison.', errors: { delivery: 'Requis' } };
+      }
+      deliveryMethod = chosen.groupName ? `${chosen.groupName} — ${chosen.name}` : chosen.name;
+      deliveryFee = chosen.price;
+    }
+
     // Re-price from the database so the stored order is authoritative and can't
     // be tampered with client-side. Fall back to the snapshot if a product was
     // removed since the customer added it.
@@ -179,7 +194,6 @@ export async function placeOrder(_prev: FormState, formData: FormData): Promise<
     });
 
     const subtotal = lines.reduce((sum, l) => sum + l.lineTotal, 0);
-    const deliveryFee = 0; // Frais convenus avec le client lors de la confirmation.
     const total = subtotal + deliveryFee;
     const itemCount = lines.reduce((n, l) => n + l.quantity, 0);
     const orderNumber = await nextOrderNumber();
@@ -196,6 +210,7 @@ export async function placeOrder(_prev: FormState, formData: FormData): Promise<
         address: parsed.data.address,
         notes: parsed.data.notes || null,
         subtotal,
+        deliveryMethod,
         deliveryFee,
         total,
         itemCount,

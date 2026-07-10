@@ -28,6 +28,15 @@ export interface CartItem extends StoredProduct {
   quantity: number;
 }
 
+/** A delivery method offered at checkout (managed from the admin panel). */
+export interface DeliveryOptionData {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  groupName: string | null;
+}
+
 /** Serializable product shape passed to the (client) product card. */
 export interface ProductCardData {
   id: string;

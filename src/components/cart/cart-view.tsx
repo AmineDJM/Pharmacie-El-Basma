@@ -1,15 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Truck } from 'lucide-react';
 import { ProductVisual } from '@/components/ui/product-visual';
+import { DeliveryPicker, resolveDelivery } from '@/components/cart/delivery-picker';
 import { useStore } from '@/components/providers/store-provider';
 import { useT } from '@/i18n/provider';
 import { formatPrice } from '@/lib/utils';
+import type { DeliveryOptionData } from '@/lib/types';
 
-export function CartView() {
+export function CartView({ deliveryOptions }: { deliveryOptions: DeliveryOptionData[] }) {
   const t = useT();
-  const { cart, cartTotal, cartCount, setCartQuantity, removeFromCart, clearCart, ready } = useStore();
+  const { cart, cartTotal, cartCount, setCartQuantity, removeFromCart, clearCart, deliveryOptionId, ready } = useStore();
+  const shipping = resolveDelivery(deliveryOptions, deliveryOptionId);
+  const fee = shipping?.price ?? 0;
+  const grandTotal = cartTotal + fee;
 
   if (!ready) {
     return <div className="h-64 animate-pulse rounded-3xl border border-border bg-card" aria-hidden />;
@@ -36,7 +41,7 @@ export function CartView() {
   return (
     <div className="grid gap-8 lg:grid-cols-3">
       {/* Items */}
-      <div className="lg:col-span-2">
+      <div className="space-y-4 lg:col-span-2">
         <ul className="flex flex-col gap-3">
           {cart.map((item) => (
             <li
@@ -97,7 +102,15 @@ export function CartView() {
           ))}
         </ul>
 
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        {/* Delivery method */}
+        <div className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+          <h2 className="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+            <Truck className="h-5 w-5 text-primary" /> {t('cart.shippingTitle')}
+          </h2>
+          <DeliveryPicker options={deliveryOptions} />
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <Link href="/produits" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
             ← {t('cart.continue')}
           </Link>
@@ -120,14 +133,23 @@ export function CartView() {
               <dt className="text-muted-foreground">{t('cart.subtotal')} ({cartCount})</dt>
               <dd className="font-medium text-foreground tabular-nums">{formatPrice(cartTotal)}</dd>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-start justify-between gap-3">
               <dt className="text-muted-foreground">{t('cart.delivery')}</dt>
-              <dd className="text-xs font-medium text-muted-foreground">{t('cart.deliveryNote')}</dd>
+              <dd className="text-right">
+                {shipping ? (
+                  <>
+                    <span className="font-medium text-foreground tabular-nums">{fee === 0 ? t('cart.free') : formatPrice(fee)}</span>
+                    <span className="block text-xs text-muted-foreground">{shipping.name}</span>
+                  </>
+                ) : (
+                  <span className="text-xs font-medium text-muted-foreground">{t('cart.selectShipping')}</span>
+                )}
+              </dd>
             </div>
           </dl>
           <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
             <span className="font-semibold text-foreground">{t('cart.total')}</span>
-            <span className="text-xl font-bold text-foreground tabular-nums">{formatPrice(cartTotal)}</span>
+            <span className="text-xl font-bold text-foreground tabular-nums">{formatPrice(grandTotal)}</span>
           </div>
           <Link
             href="/commander"

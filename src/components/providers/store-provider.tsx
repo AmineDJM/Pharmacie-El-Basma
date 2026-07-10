@@ -28,6 +28,8 @@ interface StoreState {
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   cartQuantity: (id: string) => number;
+  deliveryOptionId: string | null;
+  setDeliveryOption: (id: string | null) => void;
 }
 
 const StoreContext = createContext<StoreState | null>(null);
@@ -37,6 +39,7 @@ const KEYS = {
   compare: 'elbasma:compare',
   recent: 'elbasma:recent',
   cart: 'elbasma:cart',
+  delivery: 'elbasma:delivery',
 } as const;
 
 function read<T = StoredProduct>(key: string): T[] {
@@ -64,6 +67,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [compare, setCompare] = useState<StoredProduct[]>([]);
   const [recentlyViewed, setRecentlyViewed] = useState<StoredProduct[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [deliveryOptionId, setDeliveryOptionId] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -71,6 +75,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setCompare(read(KEYS.compare));
     setRecentlyViewed(read(KEYS.recent));
     setCart(read<CartItem>(KEYS.cart));
+    try {
+      setDeliveryOptionId(window.localStorage.getItem(KEYS.delivery) || null);
+    } catch {
+      /* ignore */
+    }
     setReady(true);
   }, []);
 
@@ -81,6 +90,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       if (e.key === KEYS.compare) setCompare(read(KEYS.compare));
       if (e.key === KEYS.recent) setRecentlyViewed(read(KEYS.recent));
       if (e.key === KEYS.cart) setCart(read<CartItem>(KEYS.cart));
+      if (e.key === KEYS.delivery) setDeliveryOptionId(window.localStorage.getItem(KEYS.delivery) || null);
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
@@ -171,9 +181,25 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setDeliveryOption = useCallback((id: string | null) => {
+    setDeliveryOptionId(id);
+    try {
+      if (id) window.localStorage.setItem(KEYS.delivery, id);
+      else window.localStorage.removeItem(KEYS.delivery);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const clearCart = useCallback(() => {
     setCart([]);
     write<CartItem>(KEYS.cart, []);
+    setDeliveryOptionId(null);
+    try {
+      window.localStorage.removeItem(KEYS.delivery);
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const cartQuantity = useCallback((id: string) => cart.find((x) => x.id === id)?.quantity ?? 0, [cart]);
@@ -202,6 +228,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       removeFromCart,
       clearCart,
       cartQuantity,
+      deliveryOptionId,
+      setDeliveryOption,
     }),
     [
       favorites,
@@ -224,6 +252,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       removeFromCart,
       clearCart,
       cartQuantity,
+      deliveryOptionId,
+      setDeliveryOption,
     ],
   );
 

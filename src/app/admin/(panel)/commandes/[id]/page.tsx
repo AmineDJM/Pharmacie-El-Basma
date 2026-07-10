@@ -135,9 +135,12 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                 <dt className="text-muted-foreground">Sous-total ({order.itemCount} article{order.itemCount > 1 ? 's' : ''})</dt>
                 <dd className="font-medium text-foreground tabular-nums">{formatPrice(order.subtotal)}</dd>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between gap-3">
                 <dt className="text-muted-foreground">Livraison</dt>
-                <dd className="text-foreground tabular-nums">{order.deliveryFee > 0 ? formatPrice(order.deliveryFee) : 'À convenir'}</dd>
+                <dd className="text-right">
+                  <span className="text-foreground tabular-nums">{order.deliveryFee > 0 ? formatPrice(order.deliveryFee) : order.deliveryMethod ? 'Gratuit' : 'À convenir'}</span>
+                  {order.deliveryMethod && <span className="block text-xs text-muted-foreground">{order.deliveryMethod}</span>}
+                </dd>
               </div>
               <div className="flex items-center justify-between border-t border-border pt-2">
                 <dt className="font-semibold text-foreground">Total</dt>

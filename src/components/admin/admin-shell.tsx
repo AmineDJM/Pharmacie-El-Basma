@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   ShoppingCart,
+  Truck,
   Package,
   FolderTree,
   Tag,
@@ -29,6 +30,7 @@ import { cn } from '@/lib/utils';
 const NAV: { label: string; href: string; icon: LucideIcon }[] = [
   { label: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
   { label: 'Commandes', href: '/admin/commandes', icon: ShoppingCart },
+  { label: 'Livraison', href: '/admin/livraison', icon: Truck },
   { label: 'Produits', href: '/admin/produits', icon: Package },
   { label: 'Catégories', href: '/admin/categories', icon: FolderTree },
   { label: 'Marques', href: '/admin/marques', icon: Tag },

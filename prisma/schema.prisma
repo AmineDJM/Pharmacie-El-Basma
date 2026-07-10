@@ -193,17 +193,35 @@ model Order {
   wilaya       String
   city         String
   address      String
-  notes        String?
-  subtotal     Float       @default(0)
-  deliveryFee  Float       @default(0)
-  total        Float       @default(0)
-  itemCount    Int         @default(0)
-  items        OrderItem[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  notes          String?
+  subtotal       Float       @default(0)
+  deliveryMethod String?
+  deliveryFee    Float       @default(0)
+  total          Float       @default(0)
+  itemCount      Int         @default(0)
+  items          OrderItem[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
   @@index([status])
   @@index([createdAt])
+}
+
+// Modes de livraison gérés par l'admin (transporteur, point relais, retrait…).
+// Le client en choisit un au moment de la commande ; son prix devient les
+// frais de livraison.
+model DeliveryOption {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float    @default(0)
+  groupName   String?
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active])
 }
 
 // Ligne de commande — instantané du produit au moment de l'achat (le nom et le
